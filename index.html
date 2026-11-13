@@ -326,7 +326,7 @@ nav.rail { top: calc(var(--bar-h) + 16px); max-height: calc(100vh - var(--bar-h)
   <form id="gForm" autocomplete="off">
     <h1>강의코치팀 업무 인수인계</h1>
     <p>팀원만 볼 수 있는 페이지예요. 업무 위젯 자료 칸의 “강의코치팀 업무 인수인계”를 누르면 팀 코드가 자동으로 들어가고, 한 번 들어오면 이 컴퓨터에서는 다음부터 바로 열려요.</p>
-    <label class="lab">내 이름<select class="field" id="gName"><option value="">고르기</option><option>경은</option><option>연주님</option><option>예은님</option><option value="__etc">그 밖 (직접 입력)</option></select></label>
+    <label class="lab">내 이름<select class="field" id="gName"><option value="">고르기</option><option>경은</option><option>연주</option><option>예은</option><option value="__etc">그 밖 (직접 입력)</option></select></label>
     <input class="field" id="gEtc" placeholder="이름" aria-label="이름 직접 입력" hidden>
     <label class="lab">팀 코드<input class="field" id="gCode" type="password" autocomplete="off"></label>
     <p class="hint bad" id="gErr" hidden></p>
@@ -376,7 +376,9 @@ nav.rail { top: calc(var(--bar-h) + 16px); max-height: calc(100vh - var(--bar-h)
 'use strict';
 var SB_URL = 'https://vgkveugpjlgmlrenciuv.supabase.co';
 var SB_KEY = 'sb_publishable_TrsHyW1oCPCaCR-2j4obpA_A1zc-i2L';
-var PEOPLE = ['경은', '연주님', '예은님'];
+var PEOPLE = ['경은', '연주', '예은'];
+function normName(s){ if (typeof s !== 'string') return s; var k = s.trim().replace(/님$/, ''); return PEOPLE.indexOf(k) >= 0 ? k : s; }
+function normData(d){ if (!d || typeof d !== 'object') return d; ['who', 'doneBy', 'doingBy', 'assignedBy', 'by', 'editedBy'].forEach(function(k){ if (d[k]) d[k] = normName(d[k]); }); if (Array.isArray(d.with)) d.with = d.with.map(normName); return d; }
 var ALL = '모두';
 var ASSIGNEES = PEOPLE.concat([ALL]);
 var W = '일월화수목금토';
@@ -390,7 +392,7 @@ var ui = {
   showWho: localStorage.getItem(WHO_KEY) === '1',
   filter: '전체', calFilter: '전체',
   month: null, editing: null, editStart: null, pendingRemote: false,
-  me: localStorage.getItem(ME_KEY) || ''
+  me: normName(localStorage.getItem(ME_KEY) || '')
 };
 
 /* ---------- helpers ---------- */
@@ -405,7 +407,7 @@ function md(s){ var d = pd(s); return (d.getMonth() + 1) + '/' + d.getDate() + '
 var uidc = Date.now(); function nid(){ return 'x' + (uidc++).toString(36) + Math.floor(Math.random() * 1296).toString(36); }
 function nim(name){ return /님$/.test(name) ? name : name + '님'; }
 function matchPerson(s){ var k = String(s).trim().replace(/님$/, ''); for (var i = 0; i < ASSIGNEES.length; i++) if (ASSIGNEES[i].replace(/님$/, '') === k) return ASSIGNEES[i]; return ''; }
-function pClass(p){ return p === '경은' ? 'p-ke' : p === '연주님' ? 'p-yj' : p === '예은님' ? 'p-ye' : p === ALL ? 'p-all' : p ? 'p-etc' : 'p-none'; }
+function pClass(p){ return p === '경은' ? 'p-ke' : p === '연주' ? 'p-yj' : p === '예은' ? 'p-ye' : p === ALL ? 'p-all' : p ? 'p-etc' : 'p-none'; }
 function pInit(p){ return p === ALL ? '모' : String(p || '?').charAt(0); }
 function pchip(p){ return p ? '<span class="pchip ' + pClass(p) + '"><i aria-hidden="true">' + esc(pInit(p)) + '</i>' + esc(p) + '</span>' : '<span class="pchip none">담당 미정</span>'; }
 function when(iso){ if (!iso) return ''; var d = new Date(iso); if (isNaN(d)) return ''; return (d.getMonth() + 1) + '/' + d.getDate() + '(' + W[d.getDay()] + ') ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
@@ -501,10 +503,10 @@ async function fetchAll(table, cols, filter){
 }
 function applyManual(row){
   var box = row.kind === 'chapter' ? S.chapters : S.sections;
-  box[row.id] = { id: row.id, kind: row.kind, data: row.data || {}, deleted: !!row.deleted, updated_at: row.updated_at };
+  box[row.id] = { id: row.id, kind: row.kind, data: normData(row.data || {}), deleted: !!row.deleted, updated_at: row.updated_at };
 }
 function applyItem(row){
-  if (row.kind === 'routine') S.routines[row.id] = { id: row.id, data: row.data || {}, deleted: !!row.deleted };
+  if (row.kind === 'routine') S.routines[row.id] = { id: row.id, data: normData(row.data || {}), deleted: !!row.deleted };
   else if (row.kind === 'event') S.events[row.id] = { id: row.id, data: row.data || {}, deleted: !!row.deleted };
 }
 async function loadAll(){
@@ -838,7 +840,7 @@ function openChapterDialog(id){
   var dlg = $('dlg'), introText = (c.data.intro || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   var n = liveSections(id).length;
   dlg.innerHTML = '<form method="dialog" id="chForm"><div class="dh"><h3>묶음 고치기</h3><button class="btn ghost" value="close" aria-label="닫기">닫기</button></div><div class="db">' +
-    '<label class="lab">묶음 이름<input class="field" id="chT" value="' + esc(c.data.title) + '" required></label>' +
+    '<label class="lab">묶음 이름<input class="field" id="chT" value="' + esc(c.data.title) + '"></label>' +
     '<label class="lab"><span>왼쪽 목차 이름 <small>짧게</small></span><input class="field" id="chS" value="' + esc(c.data.short || '') + '"></label>' +
     '<label class="lab">맨 위 목록의 한 줄 설명<input class="field" id="chD" value="' + esc(c.data.desc || '') + '"></label>' +
     '<label class="lab">묶음 소개 문장<textarea class="field" id="chI">' + esc(introText) + '</textarea></label>' +
@@ -860,7 +862,7 @@ function openAddDialog(preCh){
   var dlg = $('dlg');
   var chs = liveChapters();
   dlg.innerHTML = '<form method="dialog" id="addForm"><div class="dh"><h3>업무 추가</h3><button class="btn ghost" value="close">닫기</button></div><div class="db">' +
-    '<div class="ed-grid"><label class="lab">업무 이름<input class="field" id="aT" required placeholder="예: 코치 라이브 출석 체크"></label><label class="lab">묶음<select class="field" id="aC">' + chapterOptions(preCh || (chs[0] && chs[0].id)) + '</select></label></div>' +
+    '<div class="ed-grid"><label class="lab">업무 이름<input class="field" id="aT" placeholder="예: 코치 라이브 출석 체크"></label><label class="lab">묶음<select class="field" id="aC">' + chapterOptions(preCh || (chs[0] && chs[0].id)) + '</select></label></div>' +
     '<label class="lab"><span>한 줄 설명 <small>무슨 일인지, 왜 하는지</small></span><input class="field" id="aL"></label>' +
     '<div class="ed-grid"><label class="lab">담당<select class="field" id="aW">' + peopleOptions(ui.me && PEOPLE.indexOf(ui.me) >= 0 ? ui.me : '', true) + '</select></label><div class="lab">함께 하는 사람<div class="withs" id="aWith">' + withBoxes('aw', ui.me, []) + '</div></div></div>' +
     '<div class="box"><div class="bh">반복해서 하는 일인가요?<small>적으면 한 달 캘린더와 업무 위젯 루틴에 들어가요. 필요할 때만 하는 일이면 비워 두세요</small></div>' +
@@ -983,7 +985,7 @@ function openRoutineDialog(id, edit){
   }
   var cur = secs[0] ? secs[0].id : '';
   dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>' + (r ? '반복 업무 고치기' : '반복 업무 추가') + '</h3><button class="btn ghost" value="close">닫기</button></div><div class="db">' +
-    '<label class="lab">이름<input class="field" id="rT" value="' + esc(d.t) + '" required></label>' +
+    '<label class="lab">이름<input class="field" id="rT" value="' + esc(d.t) + '"></label>' +
     '<div class="ed-grid"><div class="lab">언제<input class="field" id="rW" value="' + esc(r ? whenText(d) : '') + '" placeholder="예: 매일, 평일, 월 수, 매월 1-5일, 25일, 웨비나 다음 날"><p class="hint" id="rWHint"></p></div><label class="lab">시간대<select class="field" id="rS"><option value="">시간대 없음</option><option' + (d.slot === '오전' ? ' selected' : '') + '>오전</option><option' + (d.slot === '오후' ? ' selected' : '') + '>오후</option></select></label></div>' +
     '<div class="ed-grid"><label class="lab">담당<select class="field" id="rWho">' + peopleOptions(d.who, true) + '</select></label><div class="lab">함께 하는 사람<div class="withs" id="rWith">' + withBoxes('rw', d.who, routineWith(d)) + '</div></div></div>' +
     '<label class="lab"><span>하는 방법 <small>연결할 업무 설명</small></span><select class="field" id="rSec"><option value="">연결 안 함</option>' + liveChapters().map(function(c){ var ss = liveSections(c.id).filter(function(s){ return s.id !== 'todo-list'; }); if (!ss.length) return ''; return '<optgroup label="' + esc(c.data.short || c.data.title) + '">' + ss.map(function(s){ return '<option value="' + esc(s.id) + '"' + (s.id === cur ? ' selected' : '') + '>' + esc(s.data.title) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select></label>' +
@@ -1055,6 +1057,13 @@ document.addEventListener('click', function(e){
   else if (a === 'rtnewdel') { ED.newRts.splice(+b.getAttribute('data-i'), 1); renderEdRts(); }
   else if (a === 'rtnewadd') { var t = $('nrT').value.trim(); if (!t) { $('nrT').focus(); return; } var w = parseWhen($('nrW').value); if (!w) { toast('언제를 알아듣지 못했어요'); $('nrW').focus(); return; } ED.newRts.push(Object.assign({ t: t, slot: $('nrS').value }, w)); $('nrT').value = ''; $('nrW').value = ''; $('edRtNew').hidden = true; renderEdRts(); }
 });
+/* dialogs: 닫기·취소·바깥 클릭·Esc 모두 닫힌다. 적은 내용이 있을 때만 한 번 묻는다 */
+function dlgDirty(){ return Array.prototype.slice.call($('dlg').querySelectorAll('input:not([type=checkbox]),textarea')).some(function(i){ return i.value !== i.defaultValue; }); }
+function dlgClose(){ if (dlgDirty() && !confirm('적은 내용이 저장되지 않아요. 닫을까요?')) return; $('dlg').close(); }
+document.addEventListener('click', function(e){ var b = e.target.closest('dialog button[value="close"]'); if (b) { e.preventDefault(); dlgClose(); } }, true);
+$('dlg').addEventListener('mousedown', function(e){ if (e.target === this) { var r = this.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dlgClose(); } });
+$('dlg').addEventListener('cancel', function(e){ e.preventDefault(); dlgClose(); });
+$('dlg').addEventListener('submit', function(e){ e.preventDefault(); });
 window.addEventListener('beforeunload', function(e){ if (ui.editing) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ---------- boot ---------- */
@@ -1098,7 +1107,7 @@ async function boot(){
   SB = window.supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'rizz-manual-auth', persistSession: true, autoRefreshToken: true } });
   $('gName').addEventListener('change', function(){ $('gEtc').hidden = this.value !== '__etc'; if (!$('gEtc').hidden) $('gEtc').focus(); });
   $('showWho').addEventListener('change', function(){ ui.showWho = this.checked; localStorage.setItem(WHO_KEY, this.checked ? '1' : '0'); if (!ui.showWho) ui.filter = '전체'; if (ui.editing) { toast('고치는 중에는 바꿀 수 없어요'); this.checked = !this.checked; ui.showWho = this.checked; return; } softRender(); });
-  $('meBtn').addEventListener('click', function(){ var v = prompt('이름을 넣어 주세요 (경은, 연주님, 예은님 또는 새 이름)', ui.me || ''); if (v == null) return; v = matchPerson(v) || v.trim(); if (!v) return; ui.me = v; localStorage.setItem(ME_KEY, v); render(); });
+  $('meBtn').addEventListener('click', function(){ var v = prompt('이름을 넣어 주세요 (경은, 연주, 예은 또는 새 이름)', ui.me || ''); if (v == null) return; v = matchPerson(v) || v.trim(); if (!v) return; ui.me = v; localStorage.setItem(ME_KEY, v); render(); });
   $('gForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var name = $('gName').value === '__etc' ? $('gEtc').value.trim() : $('gName').value;
