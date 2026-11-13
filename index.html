@@ -1068,7 +1068,13 @@ async function join(code, name){
   var ses = (await SB.auth.getSession()).data.session;
   if (!ses) { var si = await SB.auth.signInAnonymously(); if (si.error) throw si.error; }
   var j = await SB.rpc('join_team', { code: code, display_name: name });
-  if (j.error) throw j.error;
+  if (j.error) {
+    // the saved login may belong to a removed user: start a fresh one and try once more
+    await SB.auth.signOut().catch(function(){});
+    var si2 = await SB.auth.signInAnonymously(); if (si2.error) throw si2.error;
+    j = await SB.rpc('join_team', { code: code, display_name: name });
+    if (j.error) throw j.error;
+  }
   return !!j.data;
 }
 async function enter(){
