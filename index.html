@@ -317,6 +317,127 @@ dialog .df .grow { flex: 1; }
 .toast .btn { min-height: 30px; background: transparent; color: var(--color-paper); border-color: oklch(45% 0 0); }
 .toast .btn:hover { background: oklch(28% 0 0); }
 
+
+/* ===== v2 layout: tabs, list + one item, routine board ===== */
+.brand { font-family: var(--font-display); font-weight: 700; font-size: var(--text-sm); color: var(--color-ink); text-decoration: none; white-space: nowrap; letter-spacing: -0.02em; margin-right: 4px; }
+.tabs .cnt:not(:empty) { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 2px; border-radius: 99px; background: var(--color-ink); color: var(--color-paper); font-size: 11px; line-height: 18px; text-align: center; }
+.split { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: var(--space-xl); padding-block: var(--space-lg) var(--space-3xl); align-items: start; }
+.navpane { position: sticky; top: calc(var(--bar-h) + 16px); max-height: calc(100vh - var(--bar-h) - 32px); overflow-y: auto; scrollbar-width: thin; padding-right: 4px; }
+.searchbox { position: sticky; top: 0; z-index: 2; background: var(--color-paper); padding-bottom: var(--space-sm); }
+.searchbox .field { min-height: 44px; }
+#navList .who-filter { margin-bottom: var(--space-sm); padding-bottom: var(--space-sm); }
+#navList .grp { margin-top: var(--space-md); }
+#navList .gh { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 2px 12px; font-size: var(--text-sm); font-weight: 700; color: var(--color-ink); }
+#navList .gh .btn { opacity: 0; min-height: 26px; }
+#navList .grp:hover .gh .btn, #navList .gh .btn:focus-visible { opacity: 1; }
+#navList ol { list-style: none; margin: 2px 0 0; padding: 0; }
+#navList a { display: flex; gap: 8px; align-items: baseline; padding: 7px 12px; border-radius: var(--radius-ctl); color: var(--color-ink-2); text-decoration: none; font-weight: 400; font-size: var(--text-sm); line-height: 1.4; }
+#navList a:hover { background: var(--color-paper-3); color: var(--color-ink); }
+#navList a[aria-current="page"] { background: var(--color-accent-soft); color: var(--color-accent-soft-ink); font-weight: 600; }
+#navList .n { font-family: var(--font-outlier); font-size: var(--text-xs); color: var(--color-muted); flex: none; }
+#navList .nt { flex: 1; min-width: 0; }
+#navList .nw { font-size: 11px; color: var(--color-muted); flex: none; }
+#navList .homelink { font-weight: 600; color: var(--color-ink); background: var(--color-paper-2); box-shadow: inset 0 0 0 1px var(--color-rule); }
+#navList .hits { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+#navList .hits a { display: grid; gap: 1px; }
+#navList .ht { font-weight: 600; color: var(--color-ink); }
+#navList .hc, #navList .hs { font-size: var(--text-xs); color: var(--color-muted); }
+.navhint { margin: 4px 12px 8px; font-size: var(--text-xs); color: var(--color-muted); }
+#detail { min-width: 0; }
+section.one { border-top: 0; padding-top: 0; }
+section.one > h2 { font-size: var(--text-2xl); line-height: 1.15; margin-bottom: var(--space-sm); }
+section.one.editing { padding-top: var(--space-lg); margin-top: 0; }
+.crumb { margin: 0 0 4px; font-size: var(--text-xs); color: var(--color-muted); font-weight: 600; }
+.pn { display: flex; justify-content: space-between; gap: var(--space-md); margin-top: var(--space-2xl); padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-ink); }
+.pn a { display: grid; gap: 2px; max-width: 48%; text-decoration: none; font-size: var(--text-sm); }
+.pn a.nx { text-align: right; }
+.pn small { font-size: var(--text-xs); color: var(--color-muted); font-weight: 400; }
+.back { display: none; margin-bottom: var(--space-md); font-size: var(--text-sm); text-decoration: none; }
+details.fold { border-top: var(--rule-hair) solid var(--color-rule); }
+details.fold:last-of-type { border-bottom: var(--rule-hair) solid var(--color-rule); }
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 4px; font-family: var(--font-display); font-weight: 700; font-size: var(--text-lg); color: var(--color-ink); letter-spacing: -0.02em; border-radius: 8px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "+"; flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--color-ink); font-family: var(--font-outlier); font-size: 15px; font-weight: 400; }
+details.fold[open] > summary::before { content: "−"; background: var(--color-ink); color: var(--color-paper); }
+details.fold > summary:hover { background: var(--color-paper-2); }
+details.fold[open] { padding-bottom: var(--space-md); }
+.qmark { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0; padding: 1px 8px; border-radius: 99px; background: var(--color-ink); color: var(--color-paper); }
+.foldbar { display: flex; align-items: center; gap: var(--space-sm); margin: var(--space-lg) 0 var(--space-xs); font-size: var(--text-xs); color: var(--color-muted); }
+.home h2 { margin: 0 0 var(--space-sm); font-size: var(--text-2xl); line-height: 1.1; }
+.home .lead { color: var(--color-muted); max-width: var(--measure); margin: 0 0 var(--space-lg); }
+.hh { margin: var(--space-xl) 0 var(--space-sm); padding: 0; border: 0; font-size: var(--text-lg); display: flex; gap: var(--space-sm); align-items: baseline; }
+.hh small { font-family: var(--font-body); font-size: var(--text-xs); font-weight: 400; color: var(--color-muted); letter-spacing: 0; }
+.cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--space-sm); }
+.cards a { display: grid; gap: 4px; height: 100%; padding: var(--space-md); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); text-decoration: none; font-weight: 400; color: var(--color-ink-2); transition: border-color var(--dur-micro), background-color var(--dur-micro); }
+.cards a:hover { border-color: var(--color-ink); background: var(--color-paper-2); }
+.cards b { color: var(--color-ink); font-size: var(--text-base); line-height: 1.35; }
+.cards span { font-size: var(--text-sm); color: var(--color-muted); line-height: 1.5; }
+.cards small { font-size: var(--text-xs); color: var(--color-accent-soft-ink); font-weight: 600; }
+.nowbox { border: var(--rule-hair) solid var(--color-ink); border-radius: var(--radius-card); padding: var(--space-md); display: grid; gap: var(--space-sm); }
+.nowbox .nh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--space-sm); font-size: var(--text-sm); }
+.nowbox .nh b { font-size: var(--text-lg); color: var(--color-ink); }
+.nowbox .nh span { color: var(--color-muted); }
+.nowbox .grow, .rbh .grow, .rt-head .grow { flex: 1; }
+.prog { font-family: var(--font-outlier); font-size: var(--text-xs); color: var(--color-ink) !important; background: var(--color-paper-3); padding: 2px 8px; border-radius: 99px; }
+.rt-board, .todo-view { padding-block: var(--space-lg) var(--space-3xl); }
+.rt-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) var(--space-md); margin-bottom: var(--space-xs); }
+.rt-head h2 { margin: 0; font-size: var(--text-2xl); line-height: 1.1; }
+.rt-head p { margin: 0; color: var(--color-ink-2); }
+.periods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); margin-bottom: var(--space-md); align-items: start; }
+.periods.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rb { border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); padding: var(--space-md); background: var(--color-paper); display: grid; gap: var(--space-xs); align-content: start; }
+.rb.now { border-color: var(--color-ink); box-shadow: 0 0 0 1px var(--color-ink); }
+.rb.now .rbs { color: var(--color-accent-soft-ink); font-weight: 600; }
+.rbh { display: flex; align-items: baseline; gap: var(--space-xs); }
+.rbh h3 { margin: 0; padding: 0; border: 0; font-size: var(--text-xl); }
+.rbs { font-size: var(--text-xs); color: var(--color-muted); }
+.rtcards { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rc { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--radius-ctl); background: var(--color-paper-2); min-height: 48px; }
+.rc .ck { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; cursor: pointer; }
+.rc .ck input { width: 18px; height: 18px; accent-color: var(--color-ink); cursor: pointer; margin: 0; }
+.rc .ck.off { cursor: default; }
+.rc .ck.off::before { content: ""; width: 14px; height: 2px; background: var(--color-rule); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.rc .rn { flex: 1; min-width: 0; border: 0; background: transparent; padding: 2px 0; text-align: left; display: grid; gap: 1px; }
+.rc .rn b { font-size: var(--text-sm); font-weight: 600; color: var(--color-ink); line-height: 1.4; }
+.rc .rn span { font-size: var(--text-xs); color: var(--color-muted); }
+.rc .rn:hover b { text-decoration: underline; text-decoration-color: var(--color-accent); }
+.rc.done { background: transparent; box-shadow: inset 0 0 0 1px var(--color-rule-2); }
+.rc.done .rn b { text-decoration: line-through; color: var(--color-muted); }
+.rc .rp { flex: none; display: flex; padding-left: 4px; }
+.rc .dot { font-style: normal; display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: -5px; border-radius: 50%; background: var(--pc); color: var(--color-paper); font-size: 10px; font-weight: 700; box-shadow: 0 0 0 2px var(--color-paper-2); }
+.rc .rm { flex: none; font-size: var(--text-xs); }
+.addrt { border: var(--rule-hair) dashed var(--color-rule); background: transparent; border-radius: var(--radius-ctl); padding: 6px; color: var(--color-muted); font-size: var(--text-xs); font-weight: 600; }
+.addrt:hover { border-color: var(--color-ink); color: var(--color-ink); }
+.wk2 { margin-bottom: var(--space-md); }
+.wkcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: var(--space-sm); }
+.wkc { display: grid; gap: 6px; align-content: start; padding: 8px; border-radius: var(--radius-ctl); background: var(--color-paper); box-shadow: inset 0 0 0 1px var(--color-rule-2); }
+.wkc.now { box-shadow: inset 0 0 0 2px var(--color-ink); }
+.wkd { font-size: var(--text-xs); font-weight: 700; color: var(--color-ink); }
+.todo-head h2 { margin: 0 0 var(--space-xs); font-size: var(--text-2xl); }
+.todo-head .lead { margin: 0 0 var(--space-lg); color: var(--color-muted); }
+.todo-view section.one { margin-bottom: var(--space-xl); max-width: 900px; }
+.todo-view section.one > h2 { font-size: var(--text-xl); }
+.todolist .tg { border-top: var(--rule-hair) solid var(--color-rule); padding: var(--space-sm) 0; }
+.todolist .tgh { display: flex; flex-wrap: wrap; gap: 4px var(--space-sm); align-items: baseline; text-decoration: none; }
+.todolist .tgh span { font-size: var(--text-xs); color: var(--color-muted); font-weight: 400; }
+.todolist ul { margin: 6px 0 0; padding-left: 1.2em; font-size: var(--text-sm); color: var(--color-ink-2); }
+dialog.wide { width: min(1000px, calc(100vw - 24px)); }
+dialog.wide .dh .btn { flex: none; }
+@media (max-width: 1100px) { .bar .brand { display: none; } }
+@media (max-width: 900px) {
+  .split { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .navpane { position: static; max-height: none; overflow: visible; }
+  body.has-sel .navpane { display: none; }
+  body:not(.has-sel) #detail { display: none; }
+  .back { display: inline-block; }
+  .periods, .periods.two { grid-template-columns: minmax(0, 1fr); }
+  .tabs button { padding: 6px 10px; }
+}
+
+.wkc .rc { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-areas: "ck rn rn" ". rp rm"; align-items: center; row-gap: 2px; }
+.wkc .rc .ck { grid-area: ck; } .wkc .rc .rn { grid-area: rn; } .wkc .rc .rp { grid-area: rp; padding-left: 5px; } .wkc .rc .rm { grid-area: rm; }
+
 nav.rail { top: calc(var(--bar-h) + 16px); max-height: calc(100vh - var(--bar-h) - 32px); }
 
 </style>
@@ -336,35 +457,29 @@ nav.rail { top: calc(var(--bar-h) + 16px); max-height: calc(100vh - var(--bar-h)
 
 <div id="app" hidden>
   <div class="bar"><div class="wrap">
+    <a class="brand" href="#t/home">업무 인수인계</a>
     <div class="tabs" role="tablist" aria-label="보기">
-      <button type="button" role="tab" data-tab="manual" aria-selected="true">업무 방법</button>
-      <button type="button" role="tab" data-tab="cal" aria-selected="false">한 달 캘린더</button>
+      <button type="button" role="tab" data-tab="work" aria-selected="true">업무</button>
+      <button type="button" role="tab" data-tab="routine" aria-selected="false">루틴</button>
+      <button type="button" role="tab" data-tab="sys" aria-selected="false">시스템 사용법</button>
+      <button type="button" role="tab" data-tab="todo" aria-selected="false">확인 필요 <span class="cnt"></span></button>
     </div>
-    <label class="switch" title="담당자, 반복 주기, 마지막으로 고친 사람을 보여 줘요"><input type="checkbox" id="showWho">담당자 보기</label>
     <span class="grow"></span>
+    <label class="switch" title="담당자, 반복 주기, 마지막으로 고친 사람을 보여 줘요"><input type="checkbox" id="showWho">담당자 보기</label>
     <span class="sync" id="sync">연결 중</span>
     <button type="button" class="me" id="meBtn"></button>
     <button type="button" class="btn primary" data-act="add">+ 업무 추가</button>
   </div></div>
 
-  <div id="viewManual">
-    <header class="top">
-      <div class="wrap">
-        <h1>강의코치팀 업무 인수인계</h1>
-        <p class="lede">강의코치팀이 맡고 있는 업무를 하는 방법을 모았습니다. 팀원 누구나 바로 추가하고 고칠 수 있어요.</p>
-        <ol class="index" id="index" aria-label="업무 목차"></ol>
-        <p class="meta">업무마다 “고치기”를 누르면 그 자리에서 고칠 수 있어요. 담당자와 반복 주기는 위쪽 “담당자 보기”를 켜면 보여요.</p>
-      </div>
-    </header>
-    <div class="wrap cols">
-      <nav class="rail" id="rail" aria-label="목차"></nav>
-      <main id="main"></main>
-    </div>
+  <div id="viewSplit" class="wrap split">
+    <aside class="navpane" aria-label="업무 목록">
+      <div class="searchbox"><input id="q" class="field" type="search" placeholder="업무 찾기 (예: 단톡방, 페이백)" aria-label="업무 찾기" autocomplete="off"></div>
+      <nav id="navList"></nav>
+    </aside>
+    <main id="detail"></main>
   </div>
-
-  <div id="viewCal" hidden>
-    <div class="wrap cal" id="calBody"></div>
-  </div>
+  <div id="viewRoutine" class="wrap rt-board" hidden></div>
+  <div id="viewTodo" class="wrap todo-view" hidden></div>
 
   <footer><div class="wrap" id="foot"></div></footer>
 </div>
@@ -385,13 +500,13 @@ var W = '일월화수목금토';
 var ME_KEY = 'rizz-manual-me', WHO_KEY = 'rizz-manual-showwho', TAB_KEY = 'rizz-manual-tab';
 
 var SB = null;
-var S = { chapters: {}, sections: {}, routines: {}, events: {}, meta: {} }; // meta[id] = {updated_at}
+var S = { chapters: {}, sections: {}, routines: {}, events: {}, rdone: {} };
 var IMG = {}; var imgWant = {}; var imgTimer = null;
 var ui = {
-  tab: localStorage.getItem(TAB_KEY) || 'manual',
+  tab: ({ manual: 'work', cal: 'routine' })[localStorage.getItem(TAB_KEY)] || localStorage.getItem(TAB_KEY) || 'work',
   showWho: localStorage.getItem(WHO_KEY) === '1',
-  filter: '전체', calFilter: '전체',
-  month: null, editing: null, editStart: null, pendingRemote: false,
+  filter: '전체', rtFilter: '전체', sel: null, q: '',
+  editing: null, editStart: null, pendingRemote: false,
   me: normName(localStorage.getItem(ME_KEY) || '')
 };
 
@@ -508,12 +623,16 @@ function applyManual(row){
 function applyItem(row){
   if (row.kind === 'routine') S.routines[row.id] = { id: row.id, data: normData(row.data || {}), deleted: !!row.deleted };
   else if (row.kind === 'event') S.events[row.id] = { id: row.id, data: row.data || {}, deleted: !!row.deleted };
+  else if (row.kind === 'rdone') { var d = row.data || {}; if (!d.date || !d.rid) return; S.rdone[d.date] = S.rdone[d.date] || {}; S.rdone[d.date][d.rid] = !row.deleted && !!d.done; }
 }
 async function loadAll(){
   var m = await fetchAll('manual', 'id,kind,data,deleted,updated_at');
+  if (!m.length) return 0; // not (or no longer) a team member: keep what is on screen
   var it = await fetchAll('items', 'id,kind,data,deleted', function(q){ return q.in('kind', ['routine', 'event']); });
-  S.chapters = {}; S.sections = {}; S.routines = {}; S.events = {};
-  m.forEach(applyManual); it.forEach(function(r){ applyItem(r); });
+  // completion checks the 업무 위젯 keeps: this month, this week, and event-based ones
+  var t = today(), rd = await fetchAll('items', 'id,kind,data,deleted', function(q){ return q.eq('kind', 'rdone').or('data->>date.like.' + t.slice(0, 7) + '#*,data->>date.gte.' + addDays(t, -7) + ',data->>date.like.ev:*'); });
+  S.chapters = {}; S.sections = {}; S.routines = {}; S.events = {}; S.rdone = {};
+  m.forEach(applyManual); it.forEach(function(r){ applyItem(r); }); rd.forEach(function(r){ applyItem(r); });
   return m.length;
 }
 async function saveManual(rows){
@@ -535,7 +654,7 @@ function onRemoteManual(p){
   softRender();
 }
 function onRemoteItem(p){
-  var row = p.new; if (!row || !row.id || (row.kind !== 'routine' && row.kind !== 'event')) return;
+  var row = p.new; if (!row || !row.id || (row.kind !== 'routine' && row.kind !== 'event' && row.kind !== 'rdone')) return;
   applyItem(row);
   if (ui.editing) { ui.pendingRemote = true; return; }
   softRender();
@@ -589,13 +708,24 @@ async function uploadImage(file){
 }
 
 /* ---------- render: shell ---------- */
+var SYS_CH = 'job7', TODO_CH = 'todo';
+var TABS = [['work', '업무'], ['routine', '루틴'], ['sys', '시스템 사용법'], ['todo', '확인 필요']];
+function tabOfChapter(ch){ return ch === SYS_CH ? 'sys' : ch === TODO_CH ? 'todo' : 'work'; }
+function tabOfSection(s){ return tabOfChapter(s.data.chapter); }
+function chaptersOfTab(tab){ return liveChapters().filter(function(c){ return tabOfChapter(c.id) === tab; }); }
+function isNarrow(){ return window.matchMedia('(max-width: 900px)').matches; }
+function myName(){ return ui.me && PEOPLE.indexOf(ui.me) >= 0 ? ui.me : ''; }
+function isMineSection(s, p){ var d = s.data; return !!p && (d.who === p || d.who === ALL || (d.with || []).indexOf(p) >= 0); }
+function textOf(html){ return String(html || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim(); }
+
 function render(){
   document.querySelectorAll('.tabs button').forEach(function(b){ b.setAttribute('aria-selected', b.getAttribute('data-tab') === ui.tab ? 'true' : 'false'); });
-  $('viewManual').hidden = ui.tab !== 'manual';
-  $('viewCal').hidden = ui.tab !== 'cal';
+  var nTodo = todoItems().length + todoListCount(); var tc = document.querySelector('.tabs [data-tab="todo"] .cnt'); if (tc) tc.textContent = nTodo ? String(nTodo) : '';
+  var split = ui.tab === 'work' || ui.tab === 'sys';
+  $('viewSplit').hidden = !split; $('viewRoutine').hidden = ui.tab !== 'routine'; $('viewTodo').hidden = ui.tab !== 'todo';
   $('showWho').checked = ui.showWho;
   $('meBtn').textContent = ui.me ? '고치는 사람: ' + ui.me : '이름 정하기'; $('meBtn').title = '고친 기록에 남는 이름이에요. 눌러서 바꿀 수 있어요';
-  if (ui.tab === 'manual') renderManual(); else renderCal();
+  if (split) renderSplit(); else if (ui.tab === 'routine') renderRoutines(); else renderTodo();
   renderFoot();
 }
 function renderFoot(){
@@ -604,7 +734,28 @@ function renderFoot(){
   $('foot').textContent = last ? '마지막 수정 ' + when(last.data.editedAt) + (last.data.editedBy && last.data.editedBy !== '처음 정리' ? ', ' + last.data.editedBy : '') + '. 고친 내용은 팀원 화면에 바로 반영되고, 이전 내용은 서버에 따로 보관돼요.' : '';
 }
 
-/* ---------- render: manual ---------- */
+/* ---------- routing (#w/<업무>, #t/<탭>) ---------- */
+var ignoreHash = false;
+function go(hash){ if (location.hash === hash) { route(); return; } location.hash = hash; }
+function openSection(id){ go('#w/' + id); }
+function route(){
+  if (ignoreHash) { ignoreHash = false; return; }
+  var h = decodeURIComponent(location.hash.replace(/^#/, '')), tab = ui.tab, sel = null;
+  if (/^w\//.test(h)) { var id = h.slice(2); if (S.sections[id] && !S.sections[id].deleted) { sel = id; tab = tabOfSection(S.sections[id]); } }
+  else if (/^t\//.test(h)) { tab = h.slice(2); if (tab === 'home') { tab = 'work'; sel = 'home'; } if (!TABS.some(function(t){ return t[0] === tab; })) tab = 'work'; }
+  else if (h && S.sections[h]) { sel = h; tab = tabOfSection(S.sections[h]); }
+  else if (h && S.chapters[h]) { tab = tabOfChapter(h); var f = liveSections(h)[0]; sel = f && tab !== 'todo' ? f.id : null; }
+  if (ui.editing && sel !== ui.editing) {
+    if (!confirm('고치던 업무가 저장되지 않았어요. 저장하지 않고 다른 화면으로 갈까요?')) { ignoreHash = true; location.hash = '#w/' + ui.editing; return; }
+    ui.editing = null; ED = null;
+  }
+  ui.tab = tab; ui.sel = sel; localStorage.setItem(TAB_KEY, tab);
+  render();
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+/* ---------- 업무 / 시스템 사용법: list + one item ---------- */
 function sectionVisible(s){
   if (!ui.showWho || ui.filter === '전체') return true;
   var d = s.data;
@@ -619,54 +770,210 @@ function ownerHtml(s){
   (d.routines || []).forEach(function(rid){ var r = S.routines[rid]; if (!r || r.deleted) return; out.push('<button type="button" class="rtag" data-act="rt" data-id="' + esc(rid) + '" title="반복 업무 자세히 보기">' + esc(rtWhenLabel(r.data)) + (slotLabel(r.data) ? ' ' + esc(slotLabel(r.data)) : '') + ' <b>' + esc(r.data.t) + '</b></button>'); });
   return '<div class="owner">' + out.join('') + '</div>';
 }
-function sectionHtml(s, num){
-  var d = s.data;
-  var edited = ui.showWho && d.editedAt ? '<p class="edited">' + (d.editedBy === '처음 정리' ? when(d.editedAt).split(' ')[0] + ' 처음 정리' : '마지막 수정 ' + when(d.editedAt) + (d.editedBy ? ', ' + esc(d.editedBy) : '')) + '</p>' : '';
-  var h2 = s.id === 'todo-list' ? '<h2><span class="tt" style="font-size:var(--text-base);color:var(--color-muted);font-weight:600;letter-spacing:0">' + esc(d.title) + '</span><button class="btn sm edit-btn" data-act="edit" data-id="' + esc(s.id) + '">고치기</button></h2>'
-    : '<h2><span class="n">' + pad(num) + '</span><span class="tt">' + esc(d.title) + '</span><button class="btn sm edit-btn" data-act="edit" data-id="' + esc(s.id) + '" aria-label="' + esc(d.title) + ' 고치기">고치기</button></h2>';
-  return '<section id="' + esc(s.id) + '" data-sid="' + esc(s.id) + '">' + h2 + ownerHtml(s) + '<div class="sbody">' + (d.html || '') + '</div>' + edited + '</section>';
+function searchHits(q){
+  q = q.trim().toLowerCase(); if (!q) return [];
+  var words = q.split(/\s+/);
+  return liveSections().map(function(s){
+    var title = (s.data.title + ' ' + (s.data.short || '')).toLowerCase(), body = textOf(s.data.html), lb = body.toLowerCase();
+    if (!words.every(function(w){ return title.indexOf(w) >= 0 || lb.indexOf(w) >= 0; })) return null;
+    var score = words.reduce(function(n, w){ return n + (title.indexOf(w) >= 0 ? 10 : 0) + (lb.split(w).length - 1); }, 0);
+    var i = lb.indexOf(words[0]), snip = i >= 0 ? body.slice(Math.max(0, i - 24), i + 60) : '';
+    return { s: s, score: score, snip: snip };
+  }).filter(Boolean).sort(function(a, b){ return b.score - a.score; });
 }
-function renderManual(){
-  var chs = liveChapters();
-  // header index
-  $('index').innerHTML = chs.map(function(c){ return '<li><a href="#' + esc(c.id) + '"><span class="no">' + chapterNo(c) + '</span><span class="t">' + esc(c.data.title) + '</span><span class="d">' + esc(c.data.desc || '') + '</span></a></li>'; }).join('');
-  // rail
-  var rail = '';
-  if (ui.showWho) rail += '<div class="who-filter" role="group" aria-label="담당자로 걸러 보기"><span class="lab2">담당자로 걸러 보기</span>' + ['전체'].concat(PEOPLE).concat(['담당 미정']).map(function(p){ return '<button type="button" class="chipbtn" data-act="filter" data-v="' + esc(p) + '" aria-pressed="' + (ui.filter === p) + '">' + esc(p) + '</button>'; }).join('') + '</div>';
-  var main = '';
-  chs.forEach(function(c){
-    var secs = liveSections(c.id), vis = secs.filter(sectionVisible);
-    if (ui.showWho && ui.filter !== '전체' && !vis.length) return;
-    var no = chapterNo(c);
-    rail += '<a class="grp" href="#' + esc(c.id) + '">' + (c.id === 'todo' ? '' : no + '. ') + esc(c.data.short || c.data.title) + '</a><ol>';
-    secs.forEach(function(s, i){ if (!sectionVisible(s) || s.id === 'todo-list') return; rail += '<li><a href="#' + esc(s.id) + '"><span class="n">' + pad(i + 1) + '</span>' + esc(s.data.short || s.data.title) + '</a></li>'; });
-    rail += '</ol>';
-    main += '<div class="part" id="' + esc(c.id) + '"><div class="phead"><h2>' + (c.id === 'todo' ? '' : no + '. ') + esc(c.data.title) + '</h2><button class="btn sm ghost edit-btn" data-act="chedit" data-id="' + esc(c.id) + '">묶음 고치기</button></div>' + (c.data.intro || '') + '</div>';
-    secs.forEach(function(s, i){ if (!sectionVisible(s)) return; main += ui.editing === s.id ? '<section id="' + esc(s.id) + '" data-sid="' + esc(s.id) + '" class="editing"></section>' : sectionHtml(s, i + 1); });
-    if (!secs.length) main += '<p class="empty-note">아직 업무가 없어요. 위쪽 “+ 업무 추가”로 넣어 주세요.</p>';
+function navItem(s, i){
+  var cur = ui.sel === s.id ? ' aria-current="page"' : '';
+  var who = ui.showWho ? '<span class="nw">' + (s.data.who ? esc(s.data.who) : '') + '</span>' : '';
+  return '<li><a href="#w/' + esc(s.id) + '"' + cur + '><span class="n">' + pad(i + 1) + '</span><span class="nt">' + esc(s.data.short || s.data.title) + '</span>' + who + '</a></li>';
+}
+function renderNav(){
+  var html = '';
+  if (ui.showWho) html += '<div class="who-filter" role="group" aria-label="담당자로 걸러 보기">' + ['전체'].concat(PEOPLE).concat(['담당 미정']).map(function(p){ return '<button type="button" class="chipbtn" data-act="filter" data-v="' + esc(p) + '" aria-pressed="' + (ui.filter === p) + '">' + esc(p) + '</button>'; }).join('') + '</div>';
+  if (ui.q.trim()) {
+    var hits = searchHits(ui.q);
+    html += '<p class="navhint">“' + esc(ui.q.trim()) + '” 찾은 업무 ' + hits.length + '개</p><ol class="hits">' + hits.map(function(h){ var c = S.chapters[h.s.data.chapter]; return '<li><a href="#w/' + esc(h.s.id) + '"' + (ui.sel === h.s.id ? ' aria-current="page"' : '') + '><span class="ht">' + esc(h.s.data.title) + '</span><span class="hc">' + esc(TABS.filter(function(t){ return t[0] === tabOfSection(h.s); })[0][1]) + (c ? ' · ' + esc(c.data.short || c.data.title) : '') + '</span>' + (h.snip ? '<span class="hs">…' + esc(h.snip) + '…</span>' : '') + '</a></li>'; }).join('') + '</ol>';
+    if (!hits.length) html += '<p class="navhint">다른 말로 찾아보거나, 없으면 “+ 업무 추가”로 넣어 주세요.</p>';
+    $('navList').innerHTML = html; return;
+  }
+  if (ui.tab === 'work') html += '<a class="homelink" href="#t/home"' + (ui.sel === 'home' || (!ui.sel && !isNarrow()) ? ' aria-current="page"' : '') + '>' + (myName() ? esc(myName()) + '의 업무 모아보기' : '처음 오셨다면 여기부터') + '</a>';
+  chaptersOfTab(ui.tab).forEach(function(c){
+    var secs = liveSections(c.id).filter(sectionVisible);
+    if (!secs.length && ui.showWho && ui.filter !== '전체') return;
+    html += '<div class="grp"><div class="gh"><span>' + (ui.tab === 'work' ? chapterNo(c) + '. ' : '') + esc(c.data.short || c.data.title) + '</span><button type="button" class="btn sm ghost" data-act="chedit" data-id="' + esc(c.id) + '" aria-label="' + esc(c.data.title) + ' 묶음 고치기">고치기</button></div><ol>' + liveSections(c.id).map(function(s, i){ return sectionVisible(s) ? navItem(s, i) : ''; }).join('') + '</ol></div>';
   });
-  if (ui.showWho && ui.filter !== '전체' && !main) main = '<p class="empty-note">' + esc(ui.filter) + ' 담당으로 표시된 업무가 없어요.</p>';
-  $('rail').innerHTML = rail;
-  $('main').innerHTML = main;
-  $('main').querySelectorAll('.sbody a[href^="http"]').forEach(function(a){ a.target = '_blank'; a.rel = 'noopener'; });
-  hookImages($('main'));
-  if (ui.editing) mountEditor();
-  setupSpy();
+  $('navList').innerHTML = html;
 }
-var spyIO = null;
-function setupSpy(){
-  if (spyIO) spyIO.disconnect();
-  var links = Array.prototype.slice.call(document.querySelectorAll('nav.rail a[href^="#"]'));
-  if (!links.length || !('IntersectionObserver' in window)) return;
-  var map = {}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
-  var targets = Object.keys(map).map(function(id){ return document.getElementById(id); }).filter(Boolean);
-  var current = null;
-  function set(id){ if (current === id) return; current = id; links.forEach(function(a){ a.removeAttribute('aria-current'); }); var a = map[id]; if (a) { a.setAttribute('aria-current', 'true'); var r = a.closest('nav'); if (a.offsetTop < r.scrollTop || a.offsetTop > r.scrollTop + r.clientHeight - 40) r.scrollTop = a.offsetTop - r.clientHeight / 2; } }
-  spyIO = new IntersectionObserver(function(){
-    var vis = targets.filter(function(t){ var b = t.getBoundingClientRect(); return b.top < window.innerHeight * 0.35 && b.bottom > 80; });
-    if (vis.length) set(vis[vis.length - 1].id);
-  }, { rootMargin: '0px 0px -60% 0px', threshold: [0, 1] });
-  targets.forEach(function(t){ spyIO.observe(t); });
+function renderSplit(){
+  document.body.classList.toggle('has-sel', !!ui.sel);
+  renderNav();
+  var d = $('detail'), s = ui.sel && ui.sel !== 'home' ? S.sections[ui.sel] : null;
+  if (s && !s.deleted && tabOfSection(s) === ui.tab) d.innerHTML = backHtml() + detailHtml(s);
+  else if (ui.tab === 'work') d.innerHTML = backHtml() + homeHtml();
+  else d.innerHTML = sysOverviewHtml();
+  d.querySelectorAll('.sbody a[href^="http"]').forEach(function(a){ a.target = '_blank'; a.rel = 'noopener'; });
+  d.querySelectorAll('.sbody').forEach(foldSubheads);
+  hookImages(d);
+  if (ui.editing) mountEditor();
+}
+function backHtml(){ return '<a class="back" href="#t/' + esc(ui.tab) + '">← ' + (ui.tab === 'sys' ? '시스템 목록' : '업무 목록') + '</a>'; }
+function detailHtml(s){
+  var d = s.data, c = S.chapters[d.chapter], secs = liveSections(d.chapter), i = secs.indexOf(s);
+  if (ui.editing === s.id) return '<section id="' + esc(s.id) + '" data-sid="' + esc(s.id) + '" class="editing one"></section>';
+  var prev = secs[i - 1], next = secs[i + 1];
+  var edited = ui.showWho && d.editedAt ? '<p class="edited">' + (d.editedBy === '처음 정리' ? when(d.editedAt).split(' ')[0] + ' 처음 정리' : '마지막 수정 ' + when(d.editedAt) + (d.editedBy ? ', ' + esc(d.editedBy) : '')) + '</p>' : '';
+  return '<section id="' + esc(s.id) + '" data-sid="' + esc(s.id) + '" class="one">' +
+    '<p class="crumb">' + (c ? (tabOfChapter(c.id) === 'work' ? chapterNo(c) + '. ' : '') + esc(c.data.title) + ' · ' + pad(i + 1) : '') + '</p>' +
+    '<h2><span class="tt">' + esc(d.title) + '</span><button class="btn sm edit-btn" data-act="edit" data-id="' + esc(s.id) + '">고치기</button></h2>' +
+    ownerHtml(s) + '<div class="sbody">' + (d.html || '') + '</div>' + edited +
+    '<nav class="pn" aria-label="같은 묶음의 다른 업무">' + (prev ? '<a href="#w/' + esc(prev.id) + '"><small>이전</small>' + esc(prev.data.short || prev.data.title) + '</a>' : '<span></span>') + (next ? '<a class="nx" href="#w/' + esc(next.id) + '"><small>다음</small>' + esc(next.data.short || next.data.title) + '</a>' : '<span></span>') + '</nav>' +
+    '</section>';
+}
+/* long guides: each 소제목 folds open on click */
+function foldSubheads(body){
+  var hs = Array.prototype.filter.call(body.children, function(e){ return e.tagName === 'H3'; });
+  if (hs.length < 2) return;
+  hs.forEach(function(h){
+    var det = document.createElement('details'); det.className = 'fold';
+    var sum = document.createElement('summary'); sum.innerHTML = h.innerHTML; det.appendChild(sum);
+    var n = h.nextSibling; while (n && !(n.nodeType === 1 && n.tagName === 'H3')) { var nx = n.nextSibling; det.appendChild(n); n = nx; }
+    if (det.querySelector('.note .tag') && Array.prototype.some.call(det.querySelectorAll('.note .tag'), function(t){ return t.textContent.trim() === '확인 필요'; })) sum.insertAdjacentHTML('beforeend', '<span class="qmark">확인 필요</span>');
+    h.replaceWith(det);
+  });
+  var bar = document.createElement('div'); bar.className = 'foldbar';
+  bar.innerHTML = '<span>소제목 ' + hs.length + '개, 눌러서 펼쳐요</span><button type="button" class="btn sm ghost" data-act="foldall">모두 펼치기</button>';
+  body.insertBefore(bar, body.querySelector('details.fold'));
+}
+function homeHtml(){
+  var me = myName(), out = '';
+  if (!me) {
+    out += '<div class="home"><h2>처음 오셨다면</h2><p class="lead">왼쪽 목록에서 맡을 업무를 고르면 그 업무 하나만 보여요. 위쪽 검색창에 “단톡방”, “페이백”처럼 치면 바로 찾아요. 시스템 쓰는 법은 “시스템 사용법” 탭에 따로 모았어요.</p><ul class="cards">' +
+      chaptersOfTab('work').map(function(c){ var f = liveSections(c.id)[0]; return '<li><a href="' + (f ? '#w/' + esc(f.id) : '#') + '"><b>' + chapterNo(c) + '. ' + esc(c.data.title) + '</b><span>' + esc(c.data.desc || '') + '</span><small>업무 ' + liveSections(c.id).length + '개</small></a></li>'; }).join('') + '</ul></div>';
+    return out;
+  }
+  var mine = liveSections().filter(function(s){ return tabOfSection(s) === 'work' && isMineSection(s, me); });
+  var per = periodNow(), rts = periodRoutines(per.key).filter(function(r){ return routinePeople(r.data).indexOf(me) >= 0 || r.data.who === ALL; });
+  var done = rts.filter(function(r){ return isDone(r, per.key); }).length;
+  out += '<div class="home"><h2>' + esc(me) + '의 업무</h2>';
+  out += '<div class="nowbox"><div class="nh"><b>지금은 ' + per.label + '</b><span>' + esc(per.range) + ' · ' + esc(per.left) + '</span><span class="grow"></span><span class="prog">' + done + '/' + rts.length + ' 완료</span><a class="btn sm" href="#t/routine">루틴 전체 보기</a></div>' +
+    (rts.length ? '<ul class="rtcards">' + rts.map(function(r){ return rtCard(r, per.key); }).join('') + '</ul>' : '<p class="hint">이번 시기에 맡은 반복 업무가 없어요.</p>') + '</div>';
+  out += '<h3 class="hh">담당 업무 ' + mine.length + '개 <small>담당이나 함께로 표시된 업무예요</small></h3>';
+  out += mine.length ? '<ul class="cards">' + mine.map(function(s){ var c = S.chapters[s.data.chapter]; var rr = (s.data.routines || []).map(function(id){ return S.routines[id]; }).filter(function(r){ return r && !r.deleted; }); return '<li><a href="#w/' + esc(s.id) + '"><b>' + esc(s.data.title) + '</b><span>' + esc(c ? c.data.short || c.data.title : '') + (s.data.who !== me ? ' · ' + (s.data.who === ALL ? '모두' : esc(s.data.who) + '와 함께') : '') + '</span>' + (rr.length ? '<small>' + rr.map(function(r){ return esc(rtWhenLabel(r.data)); }).filter(function(v, i, a){ return a.indexOf(v) === i; }).join(', ') + '</small>' : '') + '</a></li>'; }).join('') + '</ul>' : '<p class="hint">아직 ' + esc(me) + ' 담당으로 표시된 업무가 없어요. 업무를 열고 “고치기”에서 담당을 정해 주세요.</p>';
+  out += '</div>';
+  return out;
+}
+function sysOverviewHtml(){
+  var secs = liveSections(SYS_CH);
+  return '<div class="home"><h2>시스템 사용법</h2><p class="lead">업무에서 쓰는 사이트와 도구를 처음 쓰는 사람 기준으로 정리했어요. 업무 설명 속 “사용법 보기”를 누르면 그 자리에서 바로 열려요.</p><ul class="cards">' +
+    secs.map(function(s){ var lead = textOf((s.data.html.match(/<p class="lead">([\s\S]*?)<\/p>/) || [])[1] || ''); return '<li><a href="#w/' + esc(s.id) + '"><b>' + esc(s.data.short || s.data.title) + '</b><span>' + esc(lead.slice(0, 70)) + (lead.length > 70 ? '…' : '') + '</span></a></li>'; }).join('') + '</ul></div>';
+}
+function openGuide(id){
+  var s = S.sections[id]; if (!s) return; var dlg = $('dlg');
+  dlg.className = 'wide';
+  dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>' + esc(s.data.title) + '</h3><a class="btn sm" href="#w/' + esc(id) + '" data-close>시스템 사용법 탭에서 열기</a><button class="btn ghost" value="close">닫기</button></div><div class="db"><div class="sbody">' + s.data.html + '</div></div></form>';
+  dlg.querySelectorAll('.sbody a[href^="http"]').forEach(function(a){ a.target = '_blank'; a.rel = 'noopener'; });
+  foldSubheads(dlg.querySelector('.sbody')); hookImages(dlg);
+  dlg.showModal();
+  dlg.querySelector('[data-close]').addEventListener('click', function(){ dlg.close(); });
+}
+
+/* ---------- 루틴: 월초 / 월중 / 월말 ---------- */
+var PERIODS = [['early', '월초', 1, 5], ['mid', '월중', 6, 20], ['late', '월말', 21, 31]];
+function periodOf(r){ var f = +r.mdFrom || 1; return f <= 5 ? 'early' : f <= 20 ? 'mid' : 'late'; }
+function periodNow(){
+  var t = today(), dom = pd(t).getDate(), ld = lastDay(t);
+  var p = dom <= 5 ? PERIODS[0] : dom <= 20 ? PERIODS[1] : PERIODS[2], end = Math.min(p[3], ld), left = end - dom;
+  return { key: p[0], label: p[1], range: p[2] + '~' + (p[3] >= 31 ? '말' : p[3]) + '일', left: left === 0 ? '오늘이 마지막 날' : left + '일 남음' };
+}
+function periodRoutines(key){ return liveRoutines().filter(function(r){ return r.data.cycle === 'monthly' && periodOf(r.data) === key; }); }
+function rtPass(r){ var f = ui.rtFilter; if (f === '전체') return true; if (f === '담당 미정') return !r.data.who; return r.data.who === ALL || routinePeople(r.data).indexOf(f) >= 0; }
+function weekStart(){ var d = pd(today()), dow = (d.getDay() + 6) % 7; return addDays(today(), -dow); }
+/* the completion key the 업무 위젯 uses for this routine in the current period */
+function doneKey(r, per){
+  var d = r.data, c = d.cycle || 'daily', t = today();
+  if (c === 'monthly') return t.slice(0, 7) + '#' + d.mdFrom;
+  if (c === 'daily') return t;
+  if (c === 'weekdays') { var dw = pd(t).getDay(); return dw >= 1 && dw <= 5 ? t : null; }
+  if (c === 'weekly') { var ws = weekStart(); for (var i = 0; i < 7; i++) { var dt = addDays(ws, i); if ((d.days || []).indexOf(pd(dt).getDay()) >= 0) return dt; } return null; }
+  if (c === 'event') { var ev = eventFor(d); return ev ? 'ev:' + ev.id : null; }
+  return null;
+}
+function eventFor(d){
+  var key = String(d.evKey || ''), t = today();
+  var list = liveEvents().filter(function(e){ return e.data.date && String(e.data.t || '').indexOf(key) >= 0; }).sort(function(a, b){ return a.data.date.localeCompare(b.data.date); });
+  var up = list.filter(function(e){ return addDays(e.data.date, d.offset || 0) >= addDays(t, -7); });
+  return up[0] || null;
+}
+function isDone(r, per){ var k = doneKey(r, per); return !!(k && S.rdone[k] && S.rdone[k][r.id]); }
+function rtCard(r, per){
+  var d = r.data, k = doneKey(r, per), done = isDone(r, per), secs = sectionsOfRoutine(r.id);
+  var sub = '';
+  if (d.cycle === 'weekly' && k) sub = md(k);
+  if (d.cycle === 'event') { var ev = eventFor(d); sub = ev ? md(addDays(ev.data.date, d.offset || 0)) + ' · ' + rtWhenLabel(d) : rtWhenLabel(d) + ' · 잡힌 ' + d.evKey + ' 일정 없음'; }
+  return '<li class="rc' + (done ? ' done' : '') + '">' +
+    (k ? '<label class="ck" title="' + (done ? '완료 취소' : '완료로 표시 (업무 위젯에도 체크돼요)') + '"><input type="checkbox" data-act="rdone" data-id="' + esc(r.id) + '" data-key="' + esc(k) + '"' + (done ? ' checked' : '') + '><span class="sr">완료</span></label>' : '<span class="ck off" title="이번에는 할 날이 없어요"></span>') +
+    '<button type="button" class="rn" data-act="rt" data-id="' + esc(r.id) + '"><b>' + esc(d.t) + '</b><span>' + [slotLabel(d), sub].filter(Boolean).map(esc).join(' · ') + '</span></button>' +
+    '<span class="rp">' + (routinePeople(d).length ? routinePeople(d).map(function(p){ return '<i class="dot ' + pClass(p) + '" title="' + esc(p) + '">' + esc(pInit(p)) + '</i>'; }).join('') : '<i class="dot p-none" title="담당 미정">?</i>') + '</span>' +
+    (secs.length ? '<a class="rm" href="#w/' + esc(secs[0].id) + '" title="' + esc(secs[0].data.title) + '">방법</a>' : '') +
+    '</li>';
+}
+function rtBlock(title, sub, list, per, add, cls){
+  var done = list.filter(function(r){ return isDone(r, per); }).length;
+  return '<section class="rb ' + (cls || '') + '"><div class="rbh"><h3>' + title + '</h3><span class="rbs">' + sub + '</span><span class="grow"></span>' + (list.length ? '<span class="prog">' + done + '/' + list.length + '</span>' : '') + '</div>' +
+    (list.length ? '<ul class="rtcards">' + list.map(function(r){ return rtCard(r, per); }).join('') + '</ul>' : '<p class="hint">없음</p>') +
+    '<button type="button" class="addrt" data-act="rtadd" data-when="' + esc(add) + '">+ 추가</button></section>';
+}
+function renderRoutines(){
+  var t = today(), dt = pd(t), now = periodNow(), all = liveRoutines().filter(rtPass);
+  var ordSlot = function(a, b){ var sa = a.data.tm || (a.data.slot === '오전' ? '09:00' : a.data.slot === '오후' ? '14:00' : '99'), sb = b.data.tm || (b.data.slot === '오전' ? '09:00' : b.data.slot === '오후' ? '14:00' : '99'); return sa.localeCompare(sb) || a.data.t.localeCompare(b.data.t); };
+  var html = '<div class="rt-head"><h2>' + (dt.getMonth() + 1) + '월 루틴</h2><p>오늘 ' + md(t) + '은 <b>' + now.label + '</b>이에요 (' + esc(now.range) + ', ' + esc(now.left) + ').</p><span class="grow"></span>' +
+    '<div class="who-filter" role="group" aria-label="담당자로 걸러 보기" style="border:0;padding:0;margin:0">' + ['전체'].concat(PEOPLE).concat(['담당 미정']).map(function(p){ return '<button type="button" class="chipbtn" data-act="rtfilter" data-v="' + esc(p) + '" aria-pressed="' + (ui.rtFilter === p) + '">' + esc(p) + '</button>'; }).join('') + '</div></div>';
+  html += '<p class="hint" style="margin:0 0 16px">체크는 업무 위젯의 루틴 체크와 같아요. 여기서 체크하면 위젯에도, 위젯에서 체크하면 여기에도 바로 표시돼요. 이름을 누르면 담당과 주기를 고칠 수 있어요.</p>';
+  html += '<div class="periods">' + PERIODS.map(function(p){
+    var list = all.filter(function(r){ return r.data.cycle === 'monthly' && periodOf(r.data) === p[0]; }).sort(function(a, b){ return (a.data.mdFrom - b.data.mdFrom) || a.data.t.localeCompare(b.data.t); });
+    var state = p[0] === now.key ? '지금' : (PERIODS.map(function(x){ return x[0]; }).indexOf(p[0]) < PERIODS.map(function(x){ return x[0]; }).indexOf(now.key) ? '지난 기간' : '다가올 기간');
+    return rtBlock(p[1], p[2] + '~' + (p[3] >= 31 ? '말' : p[3]) + '일 · ' + state, list, p[0], p[2] + '-' + (p[3] >= 31 ? '말' : p[3]) + '일', p[0] === now.key ? 'now' : '');
+  }).join('') + '</div>';
+  // weekly by weekday
+  var weekly = all.filter(function(r){ return r.data.cycle === 'weekly'; });
+  var days = [1, 2, 3, 4, 5, 6, 0].filter(function(d){ return d < 6 && d > 0 || weekly.some(function(r){ return (r.data.days || []).indexOf(d) >= 0; }); });
+  html += '<section class="rb wk2"><div class="rbh"><h3>매주</h3><span class="rbs">이번 주 ' + md(weekStart()) + '부터</span><span class="grow"></span><span class="prog">' + weekly.filter(function(r){ return isDone(r); }).length + '/' + weekly.length + '</span></div><div class="wkcols">' +
+    days.map(function(d){ var list = weekly.filter(function(r){ return (r.data.days || []).indexOf(d) >= 0; }).sort(ordSlot); return '<div class="wkc' + (d === dt.getDay() ? ' now' : '') + '"><div class="wkd">' + W[d] + '요일' + (d === dt.getDay() ? ' · 오늘' : '') + '</div>' + (list.length ? '<ul class="rtcards">' + list.map(function(r){ return rtCard(r); }).join('') + '</ul>' : '<p class="hint">없음</p>') + '<button type="button" class="addrt" data-act="rtadd" data-when="' + W[d] + '">+ 추가</button></div>'; }).join('') + '</div></section>';
+  // daily + events
+  var daily = all.filter(function(r){ var c = r.data.cycle || 'daily'; return c === 'daily' || c === 'weekdays'; }).sort(ordSlot);
+  var evs = all.filter(function(r){ return r.data.cycle === 'event'; }).sort(function(a, b){ return String(a.data.evKey).localeCompare(String(b.data.evKey)) || (a.data.offset - b.data.offset); });
+  html += '<div class="periods two">' + rtBlock('매일', '오늘 ' + md(t), daily, null, '매일') + rtBlock('행사 기준', '웨비나·OT 일정 전후', evs, null, '웨비나 다음 날') + '</div>';
+  $('viewRoutine').innerHTML = html;
+}
+async function setDone(rid, key, val){
+  var row = { id: 'rdone:' + key + ':' + rid, kind: 'rdone', data: { date: key, rid: rid, done: val }, deleted: false };
+  S.rdone[key] = S.rdone[key] || {}; S.rdone[key][rid] = val; render();
+  var r = await SB.from('items').upsert([row]);
+  if (r.error) { S.rdone[key][rid] = !val; render(); toast('체크를 저장하지 못했어요. 잠시 뒤 다시 눌러 주세요'); }
+}
+
+/* ---------- 확인 필요 ---------- */
+function todoItems(){
+  var out = [];
+  liveSections().forEach(function(s){
+    if (s.id === 'todo-list') return;
+    var doc = new DOMParser().parseFromString('<div>' + (s.data.html || '') + '</div>', 'text/html');
+    doc.querySelectorAll('.note').forEach(function(n, i){ var tag = n.querySelector('.tag'); if (!tag || tag.textContent.trim() !== '확인 필요') return; var p = n.querySelector('p'); out.push({ s: s, i: i, text: (p ? p.textContent : n.textContent.replace('확인 필요', '')).trim() }); });
+    doc.querySelectorAll('td').forEach(function(td){ if (/확인 필요\s*:/.test(td.textContent)) out.push({ s: s, i: -1, text: td.textContent.trim() }); });
+  });
+  return out;
+}
+function todoListCount(){ var s = S.sections['todo-list']; if (!s || s.deleted) return 0; return (s.data.html.match(/<li/g) || []).length; }
+function renderTodo(){
+  var s = S.sections['todo-list'], items = todoItems(), html = '<div class="todo-head"><h2>확인 필요</h2><p class="lead">아직 모르는 것들을 모았어요. 아는 사람이 채우면 이 목록에서 빠져요.</p></div>';
+  if (s && !s.deleted) {
+    if (ui.editing === s.id) html += '<section id="todo-list" data-sid="todo-list" class="editing one"></section>';
+    else html += '<section id="todo-list" data-sid="todo-list" class="one"><h2><span class="tt">아직 정리 안 된 업무 ' + todoListCount() + '개</span><button class="btn sm edit-btn" data-act="edit" data-id="todo-list">고치기</button></h2><p class="hint">기록이 없어 순서를 적지 못한 업무예요. 정리되면 해당 업무에 내용을 넣고 이 목록에서 지워 주세요.</p><div class="sbody">' + s.data.html + '</div></section>';
+  }
+  var by = {}; items.forEach(function(it){ (by[it.s.id] = by[it.s.id] || []).push(it); });
+  html += '<section class="one"><h2><span class="tt">업무 설명 속 확인 필요 ' + items.length + '개</span></h2><p class="hint">업무 설명 안에 “확인 필요”로 표시된 곳이에요. 누르면 그 업무로 가요. 채운 뒤에는 고치기에서 상자를 지우거나 “참고”로 바꿔 주세요.</p><div class="todolist">' +
+    Object.keys(by).map(function(id){ var x = S.sections[id], c = S.chapters[x.data.chapter]; return '<div class="tg"><a class="tgh" href="#w/' + esc(id) + '"><b>' + esc(x.data.title) + '</b><span>' + esc(TABS.filter(function(t){ return t[0] === tabOfSection(x); })[0][1]) + (c ? ' · ' + esc(c.data.short || c.data.title) : '') + '</span></a><ul>' + by[id].map(function(it){ return '<li>' + esc(it.text.replace(/^확인 필요\s*:\s*/, '')) + '</li>'; }).join('') + '</ul></div>'; }).join('') + '</div></section>';
+  $('viewTodo').innerHTML = html;
+  if (ui.editing === 'todo-list') mountEditor();
 }
 
 /* ---------- section editor ---------- */
@@ -679,7 +986,7 @@ function startEdit(id){
   var s = S.sections[id]; if (!s) return;
   ui.editing = id; ui.editStart = s.updated_at; ui.pendingRemote = false;
   ED = { id: id, links: (s.data.routines || []).slice(), newRts: [], chapter: s.data.chapter };
-  if (ui.tab !== 'manual') { ui.tab = 'manual'; }
+  ui.tab = tabOfSection(s); ui.sel = id; if (location.hash !== '#w/' + id && id !== 'todo-list') { ignoreHash = true; location.hash = '#w/' + id; }
   render();
   var el = document.getElementById(id); if (el) el.scrollIntoView({ block: 'start' });
 }
@@ -819,11 +1126,16 @@ async function deleteSection(id){
   if (!confirm('“' + s.data.title + '” 업무를 삭제할까요? 삭제한 뒤 바로 되돌릴 수 있어요.' + (nr ? '\n\n연결된 반복 업무 ' + nr + '개는 캘린더와 업무 위젯에 그대로 남아요. 필요 없으면 캘린더에서 따로 지워 주세요.' : ''))) return;
   try {
     await saveManual([{ id: id, kind: 'section', data: Object.assign({}, s.data), deleted: true }]);
-    ui.editing = null; ED = null; render();
+    ui.editing = null; ED = null; ui.sel = null; go('#t/' + tabOfSection(s));
     toast('“' + s.data.title + '” 업무를 삭제했어요', async function(){ await saveManual([{ id: id, kind: 'section', data: Object.assign({}, S.sections[id].data), deleted: false }]); render(); flashTo(id); });
   } catch (e) { toast('삭제하지 못했어요: ' + (e.message || e)); }
 }
-function flashTo(id){ var el = document.getElementById(id); if (!el) return; el.scrollIntoView({ block: 'start' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+function flashTo(id){
+  var s = S.sections[id];
+  if (s && id !== 'todo-list') { ui.tab = tabOfSection(s); ui.sel = id; if (location.hash !== '#w/' + id) { ignoreHash = true; location.hash = '#w/' + id; } render(); window.scrollTo(0, 0); }
+  else if (s) { ui.tab = 'todo'; render(); }
+  var el = document.getElementById(id); if (!el) return; el.scrollIntoView({ block: 'start' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+}
 
 /* ---------- chapters ---------- */
 function newChapterPrompt(){
@@ -898,74 +1210,14 @@ function openAddDialog(preCh){
       var id = 's-' + nid();
       var ord = liveSections(ch).reduce(function(m, x){ return Math.max(m, x.data.ord || 0); }, 0) + 1;
       await saveManual([{ id: id, kind: 'section', data: { chapter: ch, title: t, short: '', html: html, ord: ord, who: who, with: withs, routines: rids } }]);
-      dlg.close(); ui.tab = 'manual'; localStorage.setItem(TAB_KEY, 'manual'); render(); flashTo(id);
+      dlg.close(); flashTo(id);
       toast('업무를 추가했어요' + (rids.length ? '. 캘린더와 업무 위젯에도 들어갔어요' : ''));
     } catch (e) { btn.disabled = false; btn.textContent = '추가'; toast('추가하지 못했어요: ' + (e.message || e)); }
   };
 }
 
-/* ---------- calendar ---------- */
-function monthStart(){ if (!ui.month) { var d = new Date(); ui.month = d.getFullYear() + '-' + pad(d.getMonth() + 1); } return ui.month; }
-function calPass(r){ if (ui.calFilter === '전체') return true; var ps = routinePeople(r.data); if (ui.calFilter === '담당 미정') return !r.data.who; return r.data.who === ALL || ps.indexOf(ui.calFilter) >= 0; }
-function renderCal(){
-  var ms = monthStart(), y = +ms.slice(0, 4), m = +ms.slice(5, 7);
-  var first = new Date(y, m - 1, 1), last = new Date(y, m, 0);
-  var start = new Date(first); start.setDate(1 - first.getDay());
-  var end = new Date(last); end.setDate(last.getDate() + (6 - last.getDay()));
-  var days = []; for (var d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(ymd(d));
-  var rts = liveRoutines().filter(calPass);
-  var daily = rts.filter(function(r){ var c = r.data.cycle || 'daily'; return c === 'daily' || c === 'weekdays'; });
-  var other = rts.filter(function(r){ var c = r.data.cycle || 'daily'; return c !== 'daily' && c !== 'weekdays'; });
-  var evs = liveEvents().filter(function(e){ return e.data.date; });
-  var tday = today();
-  var html = '<div class="cal-head"><h2>' + y + '년 ' + m + '월</h2><div class="nav"><button class="btn sm" data-act="mprev" aria-label="이전 달">‹ 이전 달</button><button class="btn sm" data-act="mtoday">이번 달</button><button class="btn sm" data-act="mnext" aria-label="다음 달">다음 달 ›</button></div><span class="grow"></span><button class="btn sm" data-act="rtadd">+ 반복 업무 추가</button></div>';
-  html += '<div class="who-filter" role="group" aria-label="담당자로 걸러 보기" style="border:0;padding:0">' + ['전체'].concat(PEOPLE).concat(['담당 미정']).map(function(p){ return '<button type="button" class="chipbtn" data-act="calfilter" data-v="' + esc(p) + '" aria-pressed="' + (ui.calFilter === p) + '">' + (p === '전체' || p === '담당 미정' ? esc(p) : '<span class="pchip ' + pClass(p) + '" style="background:transparent;padding:0;color:inherit"><i aria-hidden="true">' + esc(pInit(p)) + '</i>' + esc(p) + '</span>') + '</button>'; }).join('') + '</div>';
-  html += '<p class="cal-sub">업무 위젯의 반복 업무와 일정을 그대로 보여 줘요. 여기서 고치면 위젯에도 바로 바뀌어요. 칸 안의 업무를 누르면 담당, 주기, 하는 방법을 볼 수 있어요. 검은 칸은 위젯에 등록된 일정(웨비나, OT 등)이에요.</p>';
-  // daily strip
-  var slotOrd = function(r){ return r.data.tm || (r.data.slot === '오전' ? '09:00' : r.data.slot === '오후' ? '14:00' : '99'); };
-  daily.sort(function(a, b){ return slotOrd(a).localeCompare(slotOrd(b)) || a.data.t.localeCompare(b.data.t); });
-  html += '<div class="daily"><h3>매일 하는 일<small>' + daily.length + '개, 칸마다 반복해서 적지 않았어요</small></h3><ul>' + daily.map(function(r){ var p = r.data.who; return '<li><button type="button" data-act="rt" data-id="' + esc(r.id) + '"><span class="slot">' + esc(slotLabel(r.data) || (r.data.cycle === 'weekdays' ? '평일' : '')) + '</span><span class="nm">' + esc(r.data.t) + (r.data.cycle === 'weekdays' && slotLabel(r.data) ? ' (평일)' : '') + '</span>' + routinePeople(r.data).map(pchip).join('') + (p ? '' : pchip('')) + '</button></li>'; }).join('') + '</ul></div>';
-  // weeks
-  html += '<div class="dow">' + '일월화수목금토'.split('').map(function(c){ return '<div>' + c + '</div>'; }).join('') + '</div><div class="weeks">';
-  var listByDay = {};
-  for (var wi = 0; wi < days.length; wi += 7) {
-    var wk = days.slice(wi, wi + 7), items = [];
-    evs.forEach(function(e){ var i = wk.indexOf(e.data.date); if (i >= 0) items.push({ a: i, b: i, ev: e, len: 0 }); });
-    other.forEach(function(r){
-      var run = null;
-      wk.forEach(function(dt, i){ var on = dueOn(r.data, dt); if (on && !run) run = { a: i, b: i, r: r }; else if (on) run.b = i; if ((!on || i === 6) && run) { run.cont = run.a === 0 && dueOn(r.data, addDays(wk[0], -1)); run.open = run.b === 6 && dueOn(r.data, addDays(wk[6], 1)); run.len = run.b - run.a + 1; items.push(run); run = null; } });
-    });
-    items.sort(function(p, q){ var lp = p.ev ? 1 : p.len, lq = q.ev ? 1 : q.len; if (lp !== lq) return lq - lp; if (!!p.ev !== !!q.ev) return p.ev ? -1 : 1; return q.len - p.len || p.a - q.a || String(p.r ? p.r.data.t : '').localeCompare(String(q.r ? q.r.data.t : '')); });
-    var lanes = [];
-    items.forEach(function(it){ var L = 0; while (true) { lanes[L] = lanes[L] || []; if (!lanes[L].some(function(o){ return !(it.b < o.a || it.a > o.b); })) { lanes[L].push(it); it.lane = L; break; } L++; } });
-    html += '<div class="wk" style="grid-template-rows: 30px' + ' auto'.repeat(Math.max(1, lanes.length)) + ' 1fr">';
-    wk.forEach(function(dt, i){ var dd = pd(dt); html += '<div class="d' + (dd.getMonth() + 1 !== m ? ' out' : '') + (dt === tday ? ' today' : '') + (i === 0 ? ' sun' : '') + '" style="grid-column:' + (i + 1) + '"></div><div class="num" style="grid-column:' + (i + 1) + '">' + dd.getDate() + (dt === tday ? '<em>오늘</em>' : '') + '</div>'; });
-    items.forEach(function(it){
-      var style = 'grid-column:' + (it.a + 1) + ' / ' + (it.b + 2) + ';grid-row:' + (it.lane + 2);
-      if (it.ev) { html += '<button type="button" class="it ev" data-act="ev" data-id="' + esc(it.ev.id) + '" style="' + style + '" title="' + esc(it.ev.data.t) + '"><span>' + esc(it.ev.data.t) + '</span></button>'; return; }
-      var r = it.r, who = r.data.who;
-      html += '<button type="button" class="it ' + pClass(who) + (it.cont ? ' cont' : '') + (it.open ? ' open' : '') + '" data-act="rt" data-id="' + esc(r.id) + '" style="' + style + '" title="' + esc(r.data.t + ' · ' + rtWhenLabel(r.data) + ' · ' + (routinePeople(r.data).join(', ') || '담당 미정')) + '"><i aria-hidden="true">' + esc(pInit(who)) + '</i><span>' + esc(r.data.t) + '</span></button>';
-    });
-    html += '</div>';
-  }
-  html += '</div>';
-  // narrow-screen list
-  var ranges = other.filter(function(r){ return r.data.cycle === 'monthly' && r.data.mdTo && r.data.mdTo !== r.data.mdFrom; });
-  var singles = other.filter(function(r){ return ranges.indexOf(r) < 0; });
-  var list = '<div class="cal-list">';
-  var byRange = {}; ranges.forEach(function(r){ var k = rtWhenLabel(r.data); (byRange[k] = byRange[k] || []).push(r); });
-  Object.keys(byRange).sort(function(a, b){ return parseInt(a.replace(/\D+/, '')) - parseInt(b.replace(/\D+/, '')); }).forEach(function(k){ list += '<div class="grp"><h4>' + esc(k) + ' 사이에</h4><div class="row">' + byRange[k].map(function(r){ return '<button type="button" class="it ' + pClass(r.data.who) + '" data-act="rt" data-id="' + esc(r.id) + '"><i>' + esc(pInit(r.data.who)) + '</i><span>' + esc(r.data.t) + '</span></button>'; }).join('') + '</div></div>'; });
-  for (var di = 1; di <= last.getDate(); di++) {
-    var dt = y + '-' + pad(m) + '-' + pad(di);
-    var evd = evs.filter(function(e){ return e.data.date === dt; }), rd = singles.filter(function(r){ return dueOn(r.data, dt); });
-    if (!evd.length && !rd.length) continue;
-    list += '<div class="grp"><h4>' + md(dt) + (dt === tday ? ' 오늘' : '') + '</h4><div class="row">' + evd.map(function(e){ return '<button type="button" class="it ev" data-act="ev" data-id="' + esc(e.id) + '"><span>' + esc(e.data.t) + '</span></button>'; }).join('') + rd.map(function(r){ return '<button type="button" class="it ' + pClass(r.data.who) + '" data-act="rt" data-id="' + esc(r.id) + '"><i>' + esc(pInit(r.data.who)) + '</i><span>' + esc(r.data.t) + '</span></button>'; }).join('') + '</div></div>';
-  }
-  list += '</div>';
-  $('calBody').innerHTML = html + list;
-}
 function nextDue(r, n){ var out = [], d = today(); for (var i = 0; i < 400 && out.length < n; i++) { var dt = addDays(d, i); if (dueOn(r, dt)) { if (r.cycle === 'monthly' && out.length && addDays(out[out.length - 1].b, 1) === dt) { out[out.length - 1].b = dt; continue; } out.push({ a: dt, b: dt }); } } return out; }
-function openRoutineDialog(id, edit){
+function openRoutineDialog(id, edit, preWhen){
   var r = id ? S.routines[id] : null, dlg = $('dlg');
   var d = r ? r.data : { t: '', cycle: 'weekly', days: [1], who: ui.me && PEOPLE.indexOf(ui.me) >= 0 ? ui.me : '', with: [], slot: '' };
   var secs = id ? sectionsOfRoutine(id) : [];
@@ -979,14 +1231,14 @@ function openRoutineDialog(id, edit){
       '<dt>하는 방법</dt><dd>' + (secs.length ? secs.map(function(s){ return '<button type="button" class="btn sm" data-goto="' + esc(s.id) + '">' + esc(s.data.title) + ' 보기</button>'; }).join(' ') : '<span class="hint">연결된 업무 설명이 없어요. 고치기에서 연결할 수 있어요</span>') + '</dd>' +
       '</dl></div><div class="df"><span class="grow"></span><button type="button" class="btn primary" id="rtEditBtn">고치기</button></div></form>';
     dlg.showModal();
-    dlg.querySelectorAll('[data-goto]').forEach(function(b){ b.onclick = function(){ dlg.close(); ui.tab = 'manual'; localStorage.setItem(TAB_KEY, 'manual'); render(); flashTo(b.getAttribute('data-goto')); }; });
+    dlg.querySelectorAll('[data-goto]').forEach(function(b){ b.onclick = function(){ dlg.close(); openSection(b.getAttribute('data-goto')); }; });
     $('rtEditBtn').onclick = function(){ openRoutineDialog(id, true); };
     return;
   }
   var cur = secs[0] ? secs[0].id : '';
   dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>' + (r ? '반복 업무 고치기' : '반복 업무 추가') + '</h3><button class="btn ghost" value="close">닫기</button></div><div class="db">' +
     '<label class="lab">이름<input class="field" id="rT" value="' + esc(d.t) + '"></label>' +
-    '<div class="ed-grid"><div class="lab">언제<input class="field" id="rW" value="' + esc(r ? whenText(d) : '') + '" placeholder="예: 매일, 평일, 월 수, 매월 1-5일, 25일, 웨비나 다음 날"><p class="hint" id="rWHint"></p></div><label class="lab">시간대<select class="field" id="rS"><option value="">시간대 없음</option><option' + (d.slot === '오전' ? ' selected' : '') + '>오전</option><option' + (d.slot === '오후' ? ' selected' : '') + '>오후</option></select></label></div>' +
+    '<div class="ed-grid"><div class="lab">언제<input class="field" id="rW" value="' + esc(r ? whenText(d) : (preWhen || '')) + '" placeholder="예: 매일, 평일, 월 수, 매월 1-5일, 25일, 웨비나 다음 날"><p class="hint" id="rWHint"></p></div><label class="lab">시간대<select class="field" id="rS"><option value="">시간대 없음</option><option' + (d.slot === '오전' ? ' selected' : '') + '>오전</option><option' + (d.slot === '오후' ? ' selected' : '') + '>오후</option></select></label></div>' +
     '<div class="ed-grid"><label class="lab">담당<select class="field" id="rWho">' + peopleOptions(d.who, true) + '</select></label><div class="lab">함께 하는 사람<div class="withs" id="rWith">' + withBoxes('rw', d.who, routineWith(d)) + '</div></div></div>' +
     '<label class="lab"><span>하는 방법 <small>연결할 업무 설명</small></span><select class="field" id="rSec"><option value="">연결 안 함</option>' + liveChapters().map(function(c){ var ss = liveSections(c.id).filter(function(s){ return s.id !== 'todo-list'; }); if (!ss.length) return ''; return '<optgroup label="' + esc(c.data.short || c.data.title) + '">' + ss.map(function(s){ return '<option value="' + esc(s.id) + '"' + (s.id === cur ? ' selected' : '') + '>' + esc(s.data.title) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select></label>' +
     '<p class="hint">저장하면 업무 위젯의 루틴에도 바로 반영돼요.</p>' +
@@ -1035,8 +1287,14 @@ function toast(msg, undo){
 
 /* ---------- events ---------- */
 document.addEventListener('click', function(e){
+  var la = e.target.closest('.sbody a[href^="#"]');
+  if (la && !e.target.closest('.rich')) {
+    var lid = la.getAttribute('href').slice(1), ls = S.sections[lid];
+    if (la.closest('dialog')) { $('dlg').close(); }
+    else if (ls && ui.tab === 'work' && tabOfSection(ls) === 'sys') { e.preventDefault(); openGuide(lid); return; }
+  }
   var b = e.target.closest('[data-act],[data-cmd],[data-tab]'); if (!b) return;
-  if (b.hasAttribute('data-tab')) { if (ui.editing && b.getAttribute('data-tab') !== 'manual') { toast('고치는 중인 업무를 먼저 저장하거나 취소해 주세요'); return; } ui.tab = b.getAttribute('data-tab'); localStorage.setItem(TAB_KEY, ui.tab); render(); window.scrollTo(0, 0); return; }
+  if (b.hasAttribute('data-tab')) { go('#t/' + b.getAttribute('data-tab')); return; }
   if (b.hasAttribute('data-cmd')) { doCmd(b.getAttribute('data-cmd')); return; }
   var a = b.getAttribute('data-act'), id = b.getAttribute('data-id');
   if (a === 'edit') startEdit(id);
@@ -1045,13 +1303,13 @@ document.addEventListener('click', function(e){
   else if (a === 'secdel') deleteSection(ui.editing);
   else if (a === 'chedit') openChapterDialog(id);
   else if (a === 'filter') { ui.filter = b.getAttribute('data-v'); render(); }
-  else if (a === 'calfilter') { ui.calFilter = b.getAttribute('data-v'); render(); }
   else if (a === 'rt') openRoutineDialog(id);
   else if (a === 'ev') openEventDialog(id);
-  else if (a === 'rtadd') openRoutineDialog(null, true);
-  else if (a === 'add') { if (ui.editing) { toast('고치는 중인 업무를 먼저 저장하거나 취소해 주세요'); return; } openAddDialog(); }
-  else if (a === 'mprev' || a === 'mnext') { var y = +ui.month.slice(0, 4), m = +ui.month.slice(5, 7) + (a === 'mnext' ? 1 : -1); if (m < 1) { m = 12; y--; } if (m > 12) { m = 1; y++; } ui.month = y + '-' + pad(m); render(); }
-  else if (a === 'mtoday') { ui.month = null; render(); }
+  else if (a === 'rtadd') openRoutineDialog(null, true, b.getAttribute('data-when'));
+  else if (a === 'add') { if (ui.editing) { toast('고치는 중인 업무를 먼저 저장하거나 취소해 주세요'); return; } var cs = ui.sel && S.sections[ui.sel]; openAddDialog(ui.tab === 'sys' ? SYS_CH : cs && tabOfSection(cs) === 'work' ? cs.data.chapter : null); }
+  else if (a === 'rtfilter') { ui.rtFilter = b.getAttribute('data-v'); render(); }
+  else if (a === 'rdone') { setDone(id, b.getAttribute('data-key'), b.checked); }
+  else if (a === 'foldall') { var fs2 = b.closest('.sbody').querySelectorAll('details.fold'), open = !Array.prototype.every.call(fs2, function(x){ return x.open; }); fs2.forEach(function(x){ x.open = open; }); b.textContent = open ? '모두 접기' : '모두 펼치기'; }
   else if (a === 'rtunlink') { ED.links = ED.links.filter(function(x){ return x !== id; }); renderEdRts(); }
   else if (a === 'rtnewopen') { $('edRtNew').hidden = false; $('nrT').value = $('edTitle').value; $('nrT').focus(); }
   else if (a === 'rtnewdel') { ED.newRts.splice(+b.getAttribute('data-i'), 1); renderEdRts(); }
@@ -1084,15 +1342,19 @@ async function join(code, name){
     j = await SB.rpc('join_team', { code: code, display_name: name });
     if (j.error) throw j.error;
   }
+  if (j.data) localStorage.setItem(KEY_K, code);
   return !!j.data;
 }
+/* the team code is kept in this browser after the first entry, so a lost login reconnects by itself */
+var KEY_K = 'rizz-manual-k';
+async function rejoin(){ var k = localStorage.getItem(KEY_K); if (!k || !ui.me) return false; try { return await join(k, ui.me); } catch (e) { return false; } }
 async function enter(){
-  $('gate').hidden = true; $('app').hidden = false; $('main').innerHTML = '<p class="loading">불러오는 중…</p>'; setSync('wait');
+  $('gate').hidden = true; $('app').hidden = false; $('detail').innerHTML = '<p class="loading">불러오는 중…</p>'; setSync('wait');
   var n = 0;
-  try { n = await loadAll(); } catch (e) { setSync('bad'); $('main').innerHTML = '<p class="loading">불러오지 못했어요. 새로고침해 주세요.</p>'; return; }
-  if (!n) { await SB.auth.signOut().catch(function(){}); showGate('팀 연결이 끊겼어요. 팀 코드를 다시 넣어 주세요.'); return; }
-  setSync('live'); render();
-  if (location.hash) { var el = document.getElementById(location.hash.slice(1)); if (el) el.scrollIntoView(); }
+  try { n = await loadAll(); } catch (e) { setSync('bad'); $('detail').innerHTML = '<p class="loading">불러오지 못했어요. 새로고침해 주세요.</p>'; return; }
+  if (!n && await rejoin()) { try { n = await loadAll(); } catch (e) {} }
+  if (!n) { await SB.auth.signOut().catch(function(){}); localStorage.removeItem(KEY_K); showGate('팀 연결이 끊겼어요. 업무 위젯 자료 칸의 “강의코치팀 업무 인수인계”로 다시 들어오거나 팀 코드를 넣어 주세요.'); return; }
+  setSync('live'); route();
   var first = true;
   SB.channel('manual-live').on('postgres_changes', { event: '*', schema: 'public', table: 'manual' }, onRemoteManual)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, onRemoteItem)
@@ -1101,13 +1363,20 @@ async function enter(){
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) refresh(); });
 }
 var lastRefresh = 0;
-async function refresh(){ if (Date.now() - lastRefresh < 15000) return; lastRefresh = Date.now(); try { await loadAll(); setSync('live'); if (!ui.editing && !$('dlg').open) softRender(); else ui.pendingRemote = true; } catch (e) { setSync('bad'); } }
+async function refresh(){ if (Date.now() - lastRefresh < 15000) return; lastRefresh = Date.now(); try { var n = await loadAll(); if (!n) { if (await rejoin()) n = await loadAll(); if (!n) { setSync('bad'); return; } } setSync('live'); if (!ui.editing && !$('dlg').open) softRender(); else ui.pendingRemote = true; } catch (e) { setSync('bad'); } }
 async function boot(){
   if (!window.supabase) { document.body.innerHTML = '<p class="loading">화면 부품을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.</p>'; return; }
   SB = window.supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'rizz-manual-auth', persistSession: true, autoRefreshToken: true } });
   $('gName').addEventListener('change', function(){ $('gEtc').hidden = this.value !== '__etc'; if (!$('gEtc').hidden) $('gEtc').focus(); });
   $('showWho').addEventListener('change', function(){ ui.showWho = this.checked; localStorage.setItem(WHO_KEY, this.checked ? '1' : '0'); if (!ui.showWho) ui.filter = '전체'; if (ui.editing) { toast('고치는 중에는 바꿀 수 없어요'); this.checked = !this.checked; ui.showWho = this.checked; return; } softRender(); });
   $('meBtn').addEventListener('click', function(){ var v = prompt('이름을 넣어 주세요 (경은, 연주, 예은 또는 새 이름)', ui.me || ''); if (v == null) return; v = matchPerson(v) || v.trim(); if (!v) return; ui.me = v; localStorage.setItem(ME_KEY, v); render(); });
+  $('q').addEventListener('input', function(){ ui.q = this.value; renderNav(); });
+  $('q').addEventListener('keydown', function(e){
+    if (e.key === 'Escape') { this.value = ''; ui.q = ''; renderNav(); }
+    if (e.key === 'Enter') { var h = searchHits(this.value)[0]; if (h) openSection(h.s.id); }
+  });
+  $('dlg').addEventListener('close', function(){ this.className = ''; });
+  window.addEventListener('resize', function(){ if (!ui.editing && !$('viewSplit').hidden) document.body.classList.toggle('has-sel', !!ui.sel); });
   $('gForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var name = $('gName').value === '__etc' ? $('gEtc').value.trim() : $('gName').value;
