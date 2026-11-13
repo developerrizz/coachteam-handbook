@@ -325,7 +325,7 @@ nav.rail { top: calc(var(--bar-h) + 16px); max-height: calc(100vh - var(--bar-h)
 <div class="gate" id="gate" hidden>
   <form id="gForm" autocomplete="off">
     <h1>강의코치팀 업무 인수인계</h1>
-    <p>팀원만 볼 수 있는 페이지예요. 업무 위젯과 같은 팀 코드를 한 번만 넣으면 이 컴퓨터에서는 다음부터 바로 열려요.</p>
+    <p>팀원만 볼 수 있는 페이지예요. 업무 위젯 자료 칸의 “강의코치팀 업무 인수인계”를 누르면 팀 코드가 자동으로 들어가고, 한 번 들어오면 이 컴퓨터에서는 다음부터 바로 열려요.</p>
     <label class="lab">내 이름<select class="field" id="gName"><option value="">고르기</option><option>경은</option><option>연주님</option><option>예은님</option><option value="__etc">그 밖 (직접 입력)</option></select></label>
     <input class="field" id="gEtc" placeholder="이름" aria-label="이름 직접 입력" hidden>
     <label class="lab">팀 코드<input class="field" id="gCode" type="password" autocomplete="off"></label>
@@ -1058,11 +1058,11 @@ document.addEventListener('click', function(e){
 window.addEventListener('beforeunload', function(e){ if (ui.editing) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ---------- boot ---------- */
-function showGate(err){
+function showGate(err, info){
   $('app').hidden = true; $('gate').hidden = false;
   $('gName').value = PEOPLE.indexOf(ui.me) >= 0 ? ui.me : (ui.me ? '__etc' : '');
   $('gEtc').hidden = $('gName').value !== '__etc'; if (!$('gEtc').hidden) $('gEtc').value = ui.me;
-  $('gErr').textContent = err || ''; $('gErr').hidden = !err;
+  $('gErr').textContent = err || info || ''; $('gErr').hidden = !(err || info); $('gErr').className = err ? 'hint bad' : 'hint ok';
 }
 async function join(code, name){
   var ses = (await SB.auth.getSession()).data.session;
@@ -1097,16 +1097,16 @@ async function boot(){
     e.preventDefault();
     var name = $('gName').value === '__etc' ? $('gEtc').value.trim() : $('gName').value;
     var code = $('gCode').value.trim();
-    if (!name) { $('gErr').hidden = false; $('gErr').textContent = '이름을 골라 주세요'; return; }
-    if (!code) { $('gErr').hidden = false; $('gErr').textContent = '팀 코드를 넣어 주세요'; return; }
+    if (!name) { showGate('이름을 골라 주세요'); return; }
+    if (!code) { showGate('팀 코드를 넣어 주세요'); return; }
     $('gBtn').disabled = true; $('gBtn').textContent = '확인하는 중';
     try { var ok = await join(code, name); if (!ok) throw new Error('code'); ui.me = name; localStorage.setItem(ME_KEY, name); history.replaceState(null, '', location.pathname); await enter(); }
-    catch (er) { $('gErr').hidden = false; $('gErr').textContent = er && er.message === 'code' ? '팀 코드가 맞지 않아요. 업무 위젯과 같은 팀 코드를 넣어 주세요.' : '연결하지 못했어요. 잠시 뒤 다시 눌러 주세요.'; }
+    catch (er) { showGate(er && er.message === 'code' ? '팀 코드가 맞지 않아요. 업무 위젯 자료 칸의 “강의코치팀 업무 인수인계”로 들어오면 코드 없이 열려요.' : '연결하지 못했어요. 잠시 뒤 다시 눌러 주세요.'); }
     $('gBtn').disabled = false; $('gBtn').textContent = '들어가기';
   });
   // code passed from the 업무 위젯 (#join=...) is used once and removed from the address bar
   var hm = location.hash.match(/join=([^&]+)/);
-  if (hm) { var code = decodeURIComponent(hm[1]); history.replaceState(null, '', location.pathname); $('gCode').value = code; if (ui.me) { try { if (await join(code, ui.me)) { await enter(); return; } } catch (e) {} } showGate(ui.me ? '' : '이름만 고르면 바로 들어가요'); return; }
+  if (hm) { var code = decodeURIComponent(hm[1]); history.replaceState(null, '', location.pathname); $('gCode').value = code; if (ui.me) { try { if (await join(code, ui.me)) { await enter(); return; } } catch (e) {} } showGate('', ui.me ? '' : '팀 코드는 들어있어요. 이름만 고르고 들어가기를 누르세요'); return; }
   var ses = (await SB.auth.getSession()).data.session;
   if (ses && ui.me) { try { await enter(); return; } catch (e) {} }
   showGate();
