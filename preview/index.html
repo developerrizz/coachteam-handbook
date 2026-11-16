@@ -1277,7 +1277,7 @@ async function ensureCollectTask(){
   if (isPreview() || !SB) return;
   var cw = winStart(today()), ns = addDays(cw, 21), id = 'lt-collect-' + ns;
   var ex = await SB.from('items').select('id').eq('id', id); if (ex.error || (ex.data && ex.data.length)) return;
-  await SB.from('items').insert([{ id: id, kind: 'task', deleted: false, data: { id: id, t: '다음 3주(' + md(ns) + '~' + md(addDays(ns, 20)) + ') 코치 라이브 가능 시간 받기', g: 'live', who: '', tm: '', date: addDays(cw, 14), done: false, detail: '폼 날짜 칸을 새 3주로 바꾼 뒤 코치님들께 보내기: ' + LIVE_FORM + '\n미응답 코치님은 인수인계 페이지 코치 라이브 탭에서 리마인드 문구 복사', by: '자동', assignedBy: '' } }]);
+  await SB.from('items').insert([{ id: id, kind: 'task', deleted: false, data: { id: id, t: '다음 3주(' + md(ns) + '~' + md(addDays(ns, 20)) + ') 코치 라이브 가능 시간 받기', g: 'live', who: '', tm: '', date: addDays(cw, 14), done: false, detail: '폼 날짜 칸은 이날 아침 7시에 다음 3주로 자동으로 바뀌어요. 코치님들께 링크만 보내면 돼요: ' + LIVE_FORM + '\n미응답 코치님은 인수인계 페이지 코치 라이브 탭에서 리마인드 문구 복사', by: '자동', assignedBy: '' } }]);
 }
 function resultsHtml(){
   var m = ui.resMonth || today().slice(0, 7), y = +m.slice(0, 4), mo = +m.slice(5, 7);
@@ -1294,7 +1294,9 @@ function availPanel(){
     return a.map(function(x){
       var d = x.data, parts = [];
       if (d.all) parts.push('전부 가능' + ((d.exceptDow || []).length ? ', ' + d.exceptDow.map(function(w){ return W[w]; }).join('·') + '요일 빼고' : ''));
-      Object.keys(d.weekly || {}).forEach(function(w){ if ((d.weekly[w] || []).length) parts.push('매주 ' + W[w] + ' ' + hourRange(d.weekly[w])); });
+      var wg = {}; [1, 2, 3, 4, 5, 6, 0].forEach(function(w){ var h = (d.weekly || {})[w]; if (h && h.length) { var k = hourRange(h); (wg[k] = wg[k] || []).push(W[w]); } });
+      var wtxt2 = Object.keys(wg).map(function(k){ return wg[k].join('·') + ' ' + k; }).join(', ');
+      if (wtxt2) parts.push('평소 되는 요일·시간: ' + wtxt2);
       Object.keys(d.dates || {}).sort().forEach(function(dt){ parts.push(md(dt) + ' ' + hourRange(d.dates[dt])); });
       if ((d.except || []).length) parts.push(d.except.map(md).join(', ') + ' 안 됨');
       return '<li><b>' + cDot(c) + esc(c) + '</b><span class="src ' + (d.source === '폼' ? 'form' : '') + '">' + esc(d.source || '직접') + '</span><span class="av-t">' + esc(parts.join(' · ') || '내용 없음') + (d.partner ? '<small>함께 희망: ' + esc(d.partner) + '</small>' : '') + (d.note ? '<small>' + esc(d.note) + '</small>' : '') + '</span>' + (d.source === '폼' ? '' : '<button class="btn sm ghost" data-act="avedit" data-id="' + esc(x.id) + '">고치기</button>') + '</li>';
@@ -1370,7 +1372,7 @@ function openAvailDialog(id, coach){
     '<div class="ed-grid"><label class="lab">코치<select class="field" id="avC">' + COACHES.map(function(c){ return '<option' + (c === d.coach ? ' selected' : '') + '>' + c + '</option>'; }).join('') + '</select></label><label class="lab">어디서 받았나요<select class="field" id="avS">' + ['슬랙', '카톡', '전화', '직접'].map(function(x){ return '<option' + (x === d.source ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label></div>' +
     '<div class="lab">언제든 되나요<div class="withs"><label><input type="checkbox" id="avAll"' + (d.all ? ' checked' : '') + '>아래 빼는 날 말고는 전부 가능</label></div></div>' +
     '<div class="ed-grid"><label class="lab"><span>빼는 요일 <small>예: 화</small></span><input class="field" id="avXW" value="' + esc((d.exceptDow || []).map(function(w){ return W[w]; }).join(' ')) + '"></label><label class="lab"><span>빼는 날짜 <small>예: 11/18 11/27</small></span><input class="field" id="avXD" value="' + esc((d.except || []).map(function(x){ return (+x.slice(5, 7)) + '/' + (+x.slice(8)); }).join(' ')) + '"></label></div>' +
-    '<label class="lab"><span>매주 되는 요일과 시간 <small>한 줄에 하나, 예: 수 20-22</small></span><textarea class="field" id="avW" style="min-height:64px">' + esc(wtxt) + '</textarea></label>' +
+    '<label class="lab"><span>평소 되는 요일·시간 <small>한 줄에 하나, 예: 수 20-22</small></span><textarea class="field" id="avW" style="min-height:64px">' + esc(wtxt) + '</textarea></label>' +
     '<label class="lab"><span>되는 날짜와 시간 <small>한 줄에 하나, 예: 11/19 19-22</small></span><textarea class="field" id="avD" style="min-height:64px">' + esc(dtxt) + '</textarea></label>' +
     '<div class="ed-grid"><label class="lab">함께 하고 싶은 코치<input class="field" id="avP" value="' + esc(d.partner || '') + '"></label><label class="lab">메모<input class="field" id="avN" value="' + esc(d.note || '') + '"></label></div>' +
     '</div><div class="df">' + (a ? '<button type="button" class="btn danger" id="avDel">삭제</button>' : '') + '<span class="grow"></span><button class="btn" value="close">취소</button><button type="button" class="btn primary" id="avSave">저장</button></div></form>';
