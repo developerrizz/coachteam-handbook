@@ -1880,13 +1880,13 @@ async function boot(){
     if (!name) { showGate('이름을 골라 주세요'); return; }
     if (!code) { showGate('팀 코드를 넣어 주세요'); return; }
     $('gBtn').disabled = true; $('gBtn').textContent = '확인하는 중';
-    try { var ok = await join(code, name); if (!ok) throw new Error('code'); ui.me = name; localStorage.setItem(ME_KEY, name); history.replaceState(null, '', location.pathname); await enter(); }
+    try { var ok = await join(code, name); if (!ok) throw new Error('code'); ui.me = name; localStorage.setItem(ME_KEY, name); history.replaceState(null, '', location.pathname + (/^#t\//.test(location.hash) ? location.hash : '')); await enter(); }
     catch (er) { showGate(er && er.message === 'code' ? '팀 코드가 맞지 않아요. 업무 위젯 자료 칸의 “강의코치팀 업무 인수인계”로 들어오면 코드 없이 열려요.' : '연결하지 못했어요. 잠시 뒤 다시 눌러 주세요.'); }
     $('gBtn').disabled = false; $('gBtn').textContent = '들어가기';
   });
   // code passed from the 업무 위젯 (#join=...) is used once and removed from the address bar
   var hm = location.hash.match(/join=([^&]+)/);
-  if (hm) { var code = decodeURIComponent(hm[1]); history.replaceState(null, '', location.pathname); $('gCode').value = code; if (ui.me) { try { if (await join(code, ui.me)) { await enter(); return; } } catch (e) {} } showGate('', ui.me ? '' : '팀 코드는 들어있어요. 이름만 고르고 들어가기를 누르세요'); return; }
+  if (hm) { var code = decodeURIComponent(hm[1]), goTab = (location.hash.match(/[&?]t=(\w+)/) || [])[1]; history.replaceState(null, '', location.pathname + (goTab ? '#t/' + goTab : '')); $('gCode').value = code; if (ui.me) { try { if (await join(code, ui.me)) { await enter(); return; } } catch (e) {} } showGate('', ui.me ? '' : '팀 코드는 들어있어요. 이름만 고르고 들어가기를 누르세요'); return; }
   var ses = (await SB.auth.getSession()).data.session;
   if (ses && ui.me) { try { await enter(); return; } catch (e) {} }
   showGate();
