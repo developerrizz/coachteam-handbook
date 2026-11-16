@@ -589,6 +589,21 @@ button.lv-card:hover { filter: brightness(.96); }
 .lv-day .blk b { justify-self: start; font-size: 12px; font-weight: 700; color: var(--color-paper); background: var(--color-ink); padding: 3px 8px; border-radius: 6px; }
 .lv-day .blk span { font-size: 11px; font-weight: 400; color: var(--color-muted); }
 
+/* ===== 코치 라이브 v3: 주별 횟수, 결과 모음 ===== */
+.cpick small { display: inline; }
+.lv-wlabel { display: flex; align-items: baseline; gap: 6px; padding: 8px 4px 4px; font-size: 12px; color: var(--color-muted); border-top: var(--rule-hair) solid var(--color-rule); }
+.lv-wlabel b { color: var(--color-ink); font-weight: 700; }
+.lv-wlabel + .lv-week { border-top: 0; }
+.wk-need { font-size: 11px; font-weight: 700; padding: 0 7px; border-radius: 99px; background: oklch(94% 0.06 85); color: oklch(38% 0.08 70); }
+.wk-ok { font-size: 11px; color: var(--color-muted); }
+.lv-res { margin-top: var(--space-md); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); padding: 4px var(--space-md); }
+.lv-res > summary { cursor: pointer; padding: 10px 0; font-weight: 700; color: var(--color-ink); font-size: var(--text-base); }
+.lv-res > summary small { font-weight: 400; font-size: var(--text-xs); color: var(--color-muted); margin-left: 6px; }
+.lv-res .res-nav { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.lv-res table { margin: 0 0 12px; }
+.lv-res td.d { color: var(--color-muted); font-size: var(--text-xs); white-space: normal; }
+.avlist li .btn { flex: none; }
+
 </style>
 </head>
 <body>
@@ -1180,7 +1195,7 @@ function renderLive(){
   html += '<p class="lv-sum"><b>확정 ' + nConf + '</b> · 후보 ' + nCand + (nBad ? ' · <b class="bad">겹침 ' + nBad + '</b>' : '') + (noLive.length ? ' · 아직 라이브 없는 코치: ' + noLive.map(esc).join(', ') : ' · 모든 코치님 라이브가 잡혔어요') + '</p>';
   // coach picker
   var pairs = []; lpList('avail').forEach(function(x){ COACHES.forEach(function(b){ if (b !== x.data.coach && String(x.data.partner || '').indexOf(b) >= 0) { var k = [x.data.coach, b]; if (!pairs.some(function(p){ return p.join() === k.join() || p.join() === k.slice().reverse().join(); })) pairs.push(k); } }); });
-  html += '<div class="lv-pick"><span class="lv-pl">가능한 날 보기</span>' + COACHES.map(function(c){ var none = !lpList('avail').some(function(x){ return x.data.coach === c; }); return '<button type="button" class="cpick" style="' + cStyle(c) + '" data-act="lvpick" data-v="' + esc(c) + '" aria-pressed="' + (pick.indexOf(c) >= 0) + '">' + cDot(c) + esc(c) + (none ? '<small>미응답</small>' : '') + '</button>'; }).join('') +
+  html += '<div class="lv-pick"><span class="lv-pl">가능한 날 보기</span>' + COACHES.map(function(c){ var none = !lpList('avail').some(function(x){ return x.data.coach === c; }); return '<button type="button" class="cpick" style="' + cStyle(c) + '" data-act="lvpick" data-v="' + esc(c) + '" aria-pressed="' + (pick.indexOf(c) >= 0) + '">' + cDot(c) + esc(c) + (none ? '<small>미응답</small>' : (function(){ var l = lastLiveOf(c); return '<small>' + (l ? (l < t ? '최근 ' : '예정 ') + md(l).replace(/\(.\)/, '') : '라이브 기록 없음') + '</small>'; })()) + '</button>'; }).join('') +
 
     (pick.length ? '<button type="button" class="btn sm ghost" data-act="lvpick" data-v="">고르기 끝</button>' : '') + '</div>';
   var unknown = pick.filter(function(c){ return availOf(c, days[0]) === undefined; });
@@ -1188,6 +1203,8 @@ function renderLive(){
   html += '<div class="lv-legend"><span class="lg cand">후보</span><span class="lg conf">확정</span><span class="lg bad">겹침</span><span class="lg evnt"><i></i>위젯 일정</span></div>';
   html += '<div class="lv-wrap"><div class="lv-board' + (pick.length ? ' picking' : '') + '"><div class="lv-dow">' + ['월', '화', '수', '목', '금', '토', '일'].map(function(c){ return '<div>' + c + '</div>'; }).join('') + '</div>';
   for (var w = 0; w < 3; w++) {
+    var wd = days.slice(w * 7, w * 7 + 7), wc = lives.filter(function(l){ return l.data.status === '확정' && wd.indexOf(l.data.date) >= 0; }).length, wcand = lives.filter(function(l){ return l.data.status === '후보' && wd.indexOf(l.data.date) >= 0; }).length;
+    html += '<div class="lv-wlabel"><b>' + md(wd[0]) + ' ~ ' + md(wd[6]) + '</b> 확정 ' + wc + '회' + (wcand ? ' · 후보 ' + wcand : '') + (wd[6] < t ? '' : wc === 0 ? ' <span class="wk-need">아직 없음</span>' : wc > 2 ? ' <span class="wk-need">주 2회 넘음</span>' : ' <span class="wk-ok">목표 주 1~2회</span>') + '</div>';
     html += '<div class="lv-week">';
     days.slice(w * 7, w * 7 + 7).forEach(function(dt){
       var dd = pd(dt), blk = blockOn(dt), past = dt < t;
@@ -1217,13 +1234,63 @@ function renderLive(){
   html += '</div></div>';
   html += '<div class="lv-cols"><section class="lv-panel"><div class="ph"><h3>코치 가능 시간</h3><span class="hint">구글폼 응답은 자동으로, 슬랙·카톡으로 받은 건 직접 넣어요</span><span class="grow"></span><button class="btn sm" data-act="avadd">+ 직접 넣기</button></div>' + availPanel() + '</section>';
   html += '<section class="lv-panel"><div class="ph"><h3>매주 고정 정규 라이브</h3><span class="grow"></span><button class="btn sm ghost" data-act="fxedit">고치기</button></div><ul class="fxlist">' + lpList('fixed').sort(function(a, b){ return ((a.data.dow + 6) % 7) - ((b.data.dow + 6) % 7) || a.data.tm.localeCompare(b.data.tm); }).map(function(f){ return '<li><b>' + W[f.data.dow] + ' ' + esc(f.data.tm) + '</b> ' + cDot(f.data.coach) + esc(f.data.coach) + '</li>'; }).join('') + '</ul>' +
-    '<div class="ph" style="margin-top:12px"><h3>코치 라이브 안 잡는 날</h3><span class="grow"></span><button class="btn sm ghost" data-act="blkadd">+ 추가</button></div><ul class="fxlist">' + (lpList('block').sort(function(a, b){ return a.data.date.localeCompare(b.data.date); }).map(function(b){ return '<li><b>' + md(b.data.date) + '</b> ' + esc(b.data.reason) + ' <button class="btn sm ghost" data-act="blkdel" data-id="' + esc(b.id) + '">빼기</button></li>'; }).join('') || '<li class="hint">없음</li>') + '</ul></section></div>';
+    '<div class="ph" style="margin-top:12px"><h3>코치 라이브 안 잡는 날</h3><span class="grow"></span><button class="btn sm ghost" data-act="blkadd">+ 추가</button></div><ul class="fxlist">' + (lpList('block').sort(function(a, b){ return a.data.date.localeCompare(b.data.date); }).map(function(b){ return '<li><b>' + md(b.data.date) + '</b> ' + esc(b.data.reason) + ' <button class="btn sm ghost" data-act="blkdel" data-id="' + esc(b.id) + '">빼기</button></li>'; }).join('') || '<li class="hint">없음</li>') + '</ul></section></div>' + resultsHtml();
   $('viewLive').innerHTML = html;
+}
+var LIVE_FORM = 'https://forms.gle/fU9tzKm5ecUhti4B8', LIVE_ANCHOR = '2026-11-16';
+function isPreview(){ return /\/preview\//.test(location.pathname); }
+function winStart(date){ var n = Math.floor((pd(date) - pd(LIVE_ANCHOR)) / 864e5); return addDays(LIVE_ANCHOR, Math.floor(n / 21) * 21); }
+function lastLiveOf(c){ var ds = lpList('live').filter(function(l){ return (l.data.status === '확정' || l.data.status === '완료') && (l.data.coaches || []).indexOf(c) >= 0; }).map(function(l){ return l.data.date; }).sort(); return ds.length ? ds[ds.length - 1] : null; }
+function copyText(t){ var done = function(){ toast('복사했어요. 붙여넣어 보내면 돼요'); }; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function(){ fb(); }); else fb(); function fb(){ var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.left = '-9999px'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('복사하지 못했어요. 글을 직접 골라 복사해 주세요'); } ta.remove(); } }
+function remindText(c){ var s = liveDays()[0], e = liveDays()[20]; return c + ' 코치님, 안녕하세요! 😊\n' + md(s) + '~' + md(e) + ' 세일즈 라이브 일정을 정하고 있어서, 가능하신 날짜와 시간을 여쭤보려고 연락드려요.\n아래 폼에서 되는 칸만 체크해 주시면 돼요. 일정이 유동적이시면 \'매주 가능한 요일·시간\'만 골라 주셔도 괜찮아요.\n' + LIVE_FORM + '\n남겨 주시면 정규 라이브와 겹치지 않게 맞춰서 다시 안내드릴게요!'; }
+function noticeText(d){
+  var cs = d.coaches || [], who = cs.join('·');
+  var lines = [who + ' 코치님, 안녕하세요! 😊', (d.type || '세일즈 라이브') + ' 일정이 확정되어 안내드려요.', '', '· 일시: ' + md(d.date) + (d.tm ? ' ' + d.tm : '')];
+  if (cs.length > 1) lines.push('· 진행: ' + who + ' 코치님 함께');
+  lines.push('');
+  if (d.promoStart && d.promoStart >= today()) lines.push('홍보는 ' + md(d.promoStart) + '부터 시작할 예정이에요.');
+  lines.push('진행 방식과 링크는 라이브 전에 따로 정리해서 보내드릴게요. 감사합니다!');
+  return lines.join('\n');
+}
+/* confirmed live → 업무 위젯 tasks: 홍보 시작 (2주 전), 배너·링크 준비 확인 (3일 전), 당일 링크 점검·리마인드 */
+async function syncLiveTasks(liveId, d){
+  if (d && d.status === '완료') return; // 끝난 라이브: 위젯 업무는 그대로 둠
+  var ids = ['promo', 'prep', 'day'].map(function(k){ return 'lt-' + liveId + '-' + k; });
+  var ex = await SB.from('items').select('id,data,deleted').in('id', ids); if (ex.error) throw ex.error;
+  var old = {}; (ex.data || []).forEach(function(r){ old[r.id] = r; });
+  var on = d && d.status === '확정', rows = [], t = today(), cs = d ? (d.coaches || []).join('·') : '';
+  var plan = on ? [
+    { k: 'promo', date: d.promoStart || addDays(d.date, -14), t: cs + ' 라이브 홍보 시작 (' + md(d.date) + (d.tm ? ' ' + d.tm : '') + ')', detail: '라이브 2주 전. 배너·CRM 등 홍보 시작' },
+    { k: 'prep', date: addDays(d.date, -3), t: cs + ' 라이브 배너·링크 준비 확인 (' + md(d.date) + ')', detail: '배너 ' + (d.banner ? '준비됨' : '아직') + ' · 링크 ' + (d.link ? '준비됨' : '아직') },
+    { k: 'day', date: d.date, t: cs + ' 라이브 당일 링크 점검·리마인드' + (d.tm ? ' (' + d.tm + ')' : ''), detail: '시작 전 링크가 열리는지 확인하고 수강생 리마인드' }
+  ] : [];
+  ids.forEach(function(id, i){
+    var o = old[id], p = plan[i];
+    if (o && o.data && o.data.done) return;
+    if (p) rows.push({ id: id, kind: 'task', deleted: false, data: Object.assign({}, o ? o.data : {}, { id: id, t: p.t, g: 'live', who: d.who || '', tm: '', date: p.date < t ? t : p.date, done: false, detail: p.detail, by: ui.me, assignedBy: ui.me }) });
+    else if (o && !o.deleted) rows.push({ id: id, kind: 'task', deleted: true, data: o.data });
+  });
+  if (rows.length) { var r = await SB.from('items').upsert(rows); if (r.error) throw r.error; }
+}
+/* every 3-week window: one 업무 위젯 task on day 15 to collect the next window's availability */
+async function ensureCollectTask(){
+  if (isPreview() || !SB) return;
+  var cw = winStart(today()), ns = addDays(cw, 21), id = 'lt-collect-' + ns;
+  var ex = await SB.from('items').select('id').eq('id', id); if (ex.error || (ex.data && ex.data.length)) return;
+  await SB.from('items').insert([{ id: id, kind: 'task', deleted: false, data: { id: id, t: '다음 3주(' + md(ns) + '~' + md(addDays(ns, 20)) + ') 코치 라이브 가능 시간 받기', g: 'live', who: '', tm: '', date: addDays(cw, 14), done: false, detail: '폼 날짜 칸을 새 3주로 바꾼 뒤 코치님들께 보내기: ' + LIVE_FORM + '\n미응답 코치님은 인수인계 페이지 코치 라이브 탭에서 리마인드 문구 복사', by: '자동', assignedBy: '' } }]);
+}
+function resultsHtml(){
+  var m = ui.resMonth || today().slice(0, 7), y = +m.slice(0, 4), mo = +m.slice(5, 7);
+  var done = lpList('live').filter(function(l){ return l.data.status === '완료' && l.data.date.slice(0, 7) === m; });
+  var rows = COACHES.map(function(c){ var ls = done.filter(function(l){ return (l.data.coaches || []).indexOf(c) >= 0; }); if (!ls.length) return ''; var sum = function(k){ return ls.reduce(function(s, l){ return s + (+l.data[k] || 0); }, 0); }; return '<tr><td>' + cDot(c) + esc(c) + '</td><td>' + ls.length + '회</td><td>' + sum('attend') + '명</td><td>' + sum('paid') + '건</td><td class="d">' + ls.map(function(l){ return md(l.data.date); }).join(', ') + '</td></tr>'; }).join('');
+  return '<details class="lv-res"' + (ui.resOpen ? ' open' : '') + '><summary>코치별 라이브 결과 <small>완료로 바꿀 때 적은 참석자·결제 수를 모아요. 월말 성과 보고에 쓰세요</small></summary>' +
+    '<div class="res-nav"><button class="btn sm ghost" data-act="resm" data-v="-1">‹</button><b>' + y + '년 ' + mo + '월</b><button class="btn sm ghost" data-act="resm" data-v="1">›</button></div>' +
+    (rows ? '<table><tr><th>코치</th><th>라이브</th><th>참석</th><th>결제</th><th>날짜</th></tr>' + rows + '</table>' : '<p class="hint">이 달에 “완료”로 바꾼 라이브가 아직 없어요.</p>') + '</details>';
 }
 function availPanel(){
   var rows = COACHES.map(function(c){
     var a = lpList('avail').filter(function(x){ return x.data.coach === c; });
-    if (!a.length) return '<li class="none"><b>' + cDot(c) + esc(c) + '</b><span class="src">미응답</span><span class="grow"></span><button class="btn sm ghost" data-act="avadd" data-coach="' + esc(c) + '">직접 넣기</button></li>';
+    if (!a.length) return '<li class="none"><b>' + cDot(c) + esc(c) + '</b><span class="src">미응답</span><span class="grow"></span><button class="btn sm" data-act="remind" data-v="' + esc(c) + '">리마인드 문구 복사</button><button class="btn sm ghost" data-act="avadd" data-coach="' + esc(c) + '">직접 넣기</button></li>';
     return a.map(function(x){
       var d = x.data, parts = [];
       if (d.all) parts.push('전부 가능' + ((d.exceptDow || []).length ? ', ' + d.exceptDow.map(function(w){ return W[w]; }).join('·') + '요일 빼고' : ''));
@@ -1247,13 +1314,17 @@ function openLiveDialog(id, pre){
     '<div class="ed-grid3"><label class="lab">상태<select class="field" id="lvS">' + LIVE_STATUS.map(function(x){ return '<option' + (x === d.status ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label><label class="lab">담당<select class="field" id="lvW">' + peopleOptions(d.who, true) + '</select></label><label class="lab"><span>홍보 시작일 <small>라이브 2주 전</small></span><input class="field" type="date" id="lvP" value="' + esc(promo) + '"></label></div>' +
     '<div class="lab">준비<div class="withs"><label><input type="checkbox" id="lvB"' + (d.banner ? ' checked' : '') + '>배너 준비</label><label><input type="checkbox" id="lvL"' + (d.link ? ' checked' : '') + '>링크 준비</label></div></div>' +
     '<label class="lab">메모<textarea class="field" id="lvM" style="min-height:64px">' + esc(d.memo || '') + '</textarea></label>' +
-    '<p class="hint">상태를 “확정”으로 저장하면 업무 위젯 일정 칸에도 들어가요. 취소나 후보로 되돌리면 위젯에서도 빠져요.</p>' +
+    '<div class="box" id="lvRes" hidden><div class="bh">결과 기록<small>코치별 결과 모음과 월말 보고에 쓰여요</small></div><div class="ed-grid3"><label class="lab">참석자 수<input class="field" type="number" min="0" id="lvA" value="' + esc(d.attend == null ? '' : d.attend) + '"></label><label class="lab">결제 수<input class="field" type="number" min="0" id="lvPd" value="' + esc(d.paid == null ? '' : d.paid) + '"></label><label class="lab">한 줄 결과<input class="field" id="lvR" value="' + esc(d.result || '') + '"></label></div></div>' +
+    '<div class="box" id="lvNote" hidden><div class="bh">코치님 안내 문구<small>확정되면 보내는 문구예요. 고쳐서 써도 돼요</small><span class="grow" style="flex:1"></span><button type="button" class="btn sm" id="lvCopy">복사</button></div><textarea class="field" id="lvNT" style="min-height:150px"></textarea></div>' +
+    '<p class="hint">“확정”으로 저장하면 업무 위젯 일정에 들어가고, 담당자 위젯에 준비 업무 3개(홍보 시작, 배너·링크 확인, 당일 점검)가 날짜별로 생겨요. 취소나 후보로 되돌리면 같이 빠져요.</p>' +
     '</div><div class="df">' + (l ? '<button type="button" class="btn danger" id="lvDel">삭제</button>' : '') + '<span class="grow"></span><button class="btn" value="close">취소</button><button type="button" class="btn primary" id="lvSave">저장</button></div></form>';
   dlg.showModal();
-  var autoPromo = !d.promoStart;
+  var autoPromo = !d.promoStart, noteEdited = false;
   function draft(){ return { id: id || 'tmp', data: { date: $('lvD').value, tm: $('lvT').value, coaches: checkedWith('lvc'), type: $('lvY').value, status: $('lvS').value, promoStart: $('lvP').value } }; }
   function refresh(){
     var x = draft(), iss = liveIssues(x), box = $('lvIss');
+    $('lvRes').hidden = x.data.status !== '완료'; $('lvNote').hidden = x.data.status !== '확정';
+    if (x.data.status === '확정' && !noteEdited) $('lvNT').value = noticeText(Object.assign({}, x.data));
     box.hidden = !iss.length; box.innerHTML = iss.map(function(i){ return (i.bad ? '<b>겹침</b> ' : '') + esc(i.t); }).join('<br>');
     var each = x.data.coaches.map(function(c){ var h = availOf(c, x.data.date); return c + ': ' + (h === undefined ? '아직 답 없음' : h === null ? '이 날 가능하다고 하지 않음' : '가능 ' + hourRange(h)); }).join(' · ');
     var both = x.data.coaches.length > 1 ? commonHours(x.data.coaches.map(function(c){ var h = availOf(c, x.data.date); return h === undefined ? [] : h; })) : null;
@@ -1263,18 +1334,22 @@ function openLiveDialog(id, pre){
   $('lvP').addEventListener('change', function(){ autoPromo = false; refresh(); });
   ['lvT', 'lvY', 'lvS'].forEach(function(k){ $(k).addEventListener('change', refresh); });
   $('lvC').addEventListener('change', refresh);
+  $('lvNT').addEventListener('input', function(){ noteEdited = true; });
+  $('lvCopy').onclick = function(){ copyText($('lvNT').value); };
   refresh();
   $('lvSave').onclick = async function(){
     var x = draft().data; if (!x.date) { toast('날짜를 넣어 주세요'); return; } if (!x.coaches.length) { toast('코치를 골라 주세요'); return; }
     var nd = Object.assign({}, l ? l.data : {}, x, { who: $('lvW').value, banner: $('lvB').checked, link: $('lvL').checked, memo: $('lvM').value.trim() });
+    if (x.status === '완료') { nd.attend = $('lvA').value === '' ? null : +$('lvA').value; nd.paid = $('lvPd').value === '' ? null : +$('lvPd').value; nd.result = $('lvR').value.trim(); }
     var nid2 = id || 'live-' + nid();
     try {
       await saveLive([{ id: nid2, kind: 'live', data: nd }]);
       await syncLiveEvent(nid2, nd);
-      dlg.close(); render(); toast(nd.status === '확정' ? '확정했어요. 업무 위젯 일정에도 들어갔어요' : '저장했어요');
+      await syncLiveTasks(nid2, nd);
+      dlg.close(); render(); toast(nd.status === '확정' ? '확정했어요. 위젯 일정과 준비 업무 3개가 들어갔어요' : '저장했어요');
     } catch (e) { toast('저장하지 못했어요: ' + (e.message || e)); }
   };
-  if ($('lvDel')) $('lvDel').onclick = async function(){ if (!confirm('이 라이브를 삭제할까요?')) return; try { await saveLive([{ id: id, kind: 'live', data: Object.assign({}, l.data), deleted: true }]); await syncLiveEvent(id, null); dlg.close(); render(); toast('삭제했어요', async function(){ await saveLive([{ id: id, kind: 'live', data: Object.assign({}, LP.live[id].data), deleted: false }]); await syncLiveEvent(id, LP.live[id].data); render(); }); } catch (e) { toast('삭제하지 못했어요'); } };
+  if ($('lvDel')) $('lvDel').onclick = async function(){ if (!confirm('이 라이브를 삭제할까요?')) return; try { await saveLive([{ id: id, kind: 'live', data: Object.assign({}, l.data), deleted: true }]); await syncLiveEvent(id, null); await syncLiveTasks(id, null); dlg.close(); render(); toast('삭제했어요', async function(){ await saveLive([{ id: id, kind: 'live', data: Object.assign({}, LP.live[id].data), deleted: false }]); await syncLiveEvent(id, LP.live[id].data); await syncLiveTasks(id, LP.live[id].data); render(); }); } catch (e) { toast('삭제하지 못했어요'); } };
 }
 /* a confirmed live becomes an event in the 업무 위젯 (items kind event, id live-…) */
 async function syncLiveEvent(id, d){
@@ -1687,6 +1762,8 @@ document.addEventListener('click', function(e){
   else if (a === 'navch') { ui.navCh = id; renderNav(); }
   else if (a === 'lvadd') openLiveDialog(null, { date: b.getAttribute('data-date'), coach: b.getAttribute('data-coach'), hour: b.getAttribute('data-hour') });
   else if (a === 'lvedit') openLiveDialog(id);
+  else if (a === 'remind') copyText(remindText(b.getAttribute('data-v')));
+  else if (a === 'resm') { var rm = (ui.resMonth || today().slice(0, 7)) + '-01'; var dd = pd(rm); dd.setMonth(dd.getMonth() + (+b.getAttribute('data-v'))); ui.resMonth = ymd(dd).slice(0, 7); ui.resOpen = true; renderLive(); }
   else if (a === 'lvpick') { var v = b.getAttribute('data-v'); ui.lvPick = ui.lvPick || []; if (!v) ui.lvPick = []; else if (ui.lvPick.indexOf(v) >= 0) ui.lvPick = ui.lvPick.filter(function(x){ return x !== v; }); else ui.lvPick = ui.lvPick.concat([v]); renderLive(); }
   else if (a === 'lvpair') { var pv = b.getAttribute('data-v').split(','); ui.lvPick = b.getAttribute('aria-pressed') === 'true' ? [] : pv; renderLive(); }
   else if (a === 'lvprev' || a === 'lvnext') { ui.liveStart = addDays(liveDays()[0], a === 'lvnext' ? 21 : -21); render(); }
@@ -1744,6 +1821,7 @@ async function enter(){
   if (!n && await rejoin()) { try { n = await loadAll(); } catch (e) {} }
   if (!n) { await SB.auth.signOut().catch(function(){}); localStorage.removeItem(KEY_K); showGate('팀 연결이 끊겼어요. 업무 위젯 자료 칸의 “강의코치팀 업무 인수인계”로 다시 들어오거나 팀 코드를 넣어 주세요.'); return; }
   setSync('live'); route();
+  ensureCollectTask().catch(function(){});
   var first = true;
   SB.channel('manual-live').on('postgres_changes', { event: '*', schema: 'public', table: 'manual' }, onRemoteManual)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, onRemoteItem)
