@@ -585,6 +585,10 @@ button.lv-card:hover { filter: brightness(.96); }
 .lv-slot:hover { background: var(--color-paper-3); }
 .avlist li b { display: inline-flex; align-items: baseline; width: 6.5em; }
 
+.lv-day .blk { display: grid; gap: 3px; }
+.lv-day .blk b { justify-self: start; font-size: 12px; font-weight: 700; color: var(--color-paper); background: var(--color-ink); padding: 3px 8px; border-radius: 6px; }
+.lv-day .blk span { font-size: 11px; font-weight: 400; color: var(--color-muted); }
+
 </style>
 </head>
 <body>
@@ -1152,7 +1156,7 @@ function liveIssues(l){
       .concat(fixedOn(d.date).map(function(f){ return { name: f.coaches[0] + ' 정규 라이브', tm: f.tm }; }));
     others.forEach(function(o){ var om = mins(o.tm); if (om != null && Math.abs(om - m) < 60) out.push({ bad: true, t: o.tm + ' ' + o.name + '와 시간이 겹쳐요' }); });
   }
-  if (blockOn(d.date)) out.push({ bad: true, t: blockOn(d.date).data.reason + ' 날이라 라이브를 잡지 않기로 한 날이에요' });
+  if (blockOn(d.date)) out.push({ bad: true, t: blockOn(d.date).data.reason + ' 날이라 코치 라이브를 잡지 않기로 한 날이에요' });
   (d.coaches || []).forEach(function(c){
     var h = availOf(c, d.date);
     if (h === null) out.push({ t: c + ' 코치님이 이 날 가능하다고 하지 않았어요' });
@@ -1198,7 +1202,7 @@ function renderLive(){
       } else if (pick.length) state = 'off';
       html += '<div class="lv-day' + (dt === t ? ' today' : '') + (blk ? ' blocked' : '') + (past ? ' past' : '') + (state ? ' ' + state : '') + '">';
       html += '<div class="lv-dn"><b>' + (dd.getMonth() + 1) + '/' + dd.getDate() + '</b>' + (dt === t ? '<em>오늘</em>' : '') + (evs.length ? '<span class="evdot" title="' + esc(evs.map(function(e){ return (e.data.tm ? e.data.tm + ' ' : '') + e.data.t; }).join('\n')) + '">' + evs.length + '</span>' : '') + (!blk ? '<button class="lv-plus" data-act="lvadd" data-date="' + dt + '" aria-label="' + md(dt) + ' 라이브 추가">+</button>' : '') + '</div>';
-      if (blk) html += '<div class="blk">' + esc(blk.data.reason) + ' · 라이브 없음</div>';
+      if (blk) html += '<div class="blk"><b>' + esc(blk.data.reason) + '</b><span>이 날은 코치 라이브를 잡지 않아요</span></div>';
       if (fx.length) html += '<div class="lv-fx" title="매주 고정 정규 코칭 라이브">정규 ' + fx.map(function(f){ return esc(f.tm) + ' ' + esc(f.coaches[0]); }).join(' · ') + '</div>';
       livesOn(dt).forEach(function(l){
         var d = l.data, iss = liveIssues(l).filter(function(i){ return !i.info; }), bad = iss.some(function(i){ return i.bad; }), cs = d.coaches || [];
@@ -1213,7 +1217,7 @@ function renderLive(){
   html += '</div></div>';
   html += '<div class="lv-cols"><section class="lv-panel"><div class="ph"><h3>코치 가능 시간</h3><span class="hint">구글폼 응답은 자동으로, 슬랙·카톡으로 받은 건 직접 넣어요</span><span class="grow"></span><button class="btn sm" data-act="avadd">+ 직접 넣기</button></div>' + availPanel() + '</section>';
   html += '<section class="lv-panel"><div class="ph"><h3>매주 고정 정규 라이브</h3><span class="grow"></span><button class="btn sm ghost" data-act="fxedit">고치기</button></div><ul class="fxlist">' + lpList('fixed').sort(function(a, b){ return ((a.data.dow + 6) % 7) - ((b.data.dow + 6) % 7) || a.data.tm.localeCompare(b.data.tm); }).map(function(f){ return '<li><b>' + W[f.data.dow] + ' ' + esc(f.data.tm) + '</b> ' + cDot(f.data.coach) + esc(f.data.coach) + '</li>'; }).join('') + '</ul>' +
-    '<div class="ph" style="margin-top:12px"><h3>라이브 안 잡는 날</h3><span class="grow"></span><button class="btn sm ghost" data-act="blkadd">+ 추가</button></div><ul class="fxlist">' + (lpList('block').sort(function(a, b){ return a.data.date.localeCompare(b.data.date); }).map(function(b){ return '<li><b>' + md(b.data.date) + '</b> ' + esc(b.data.reason) + ' <button class="btn sm ghost" data-act="blkdel" data-id="' + esc(b.id) + '">빼기</button></li>'; }).join('') || '<li class="hint">없음</li>') + '</ul></section></div>';
+    '<div class="ph" style="margin-top:12px"><h3>코치 라이브 안 잡는 날</h3><span class="grow"></span><button class="btn sm ghost" data-act="blkadd">+ 추가</button></div><ul class="fxlist">' + (lpList('block').sort(function(a, b){ return a.data.date.localeCompare(b.data.date); }).map(function(b){ return '<li><b>' + md(b.data.date) + '</b> ' + esc(b.data.reason) + ' <button class="btn sm ghost" data-act="blkdel" data-id="' + esc(b.id) + '">빼기</button></li>'; }).join('') || '<li class="hint">없음</li>') + '</ul></section></div>';
   $('viewLive').innerHTML = html;
 }
 function availPanel(){
@@ -1318,7 +1322,7 @@ function openFixedDialog(){
   };
 }
 async function addBlock(){
-  var s = prompt('라이브를 잡지 않는 날과 이유를 적어 주세요 (예: 11/22 웨비나)'); if (!s) return;
+  var s = prompt('코치 라이브를 잡지 않는 날과 이유를 적어 주세요 (예: 11/22 웨비나)'); if (!s) return;
   var m = s.match(/(\d{1,2})\/(\d{1,2})\s*(.*)/); if (!m) { toast('“11/22 웨비나”처럼 적어 주세요'); return; }
   var dt = today().slice(0, 4) + '-' + pad(+m[1]) + '-' + pad(+m[2]);
   await saveLive([{ id: 'block-' + dt, kind: 'block', data: { date: dt, reason: m[3].trim() || '라이브 없음' } }]); render();
