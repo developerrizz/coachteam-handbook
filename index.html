@@ -1338,10 +1338,11 @@ function openLiveDialog(id, pre){
   var promo = d.promoStart || addDays(d.date, -14);
   dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>' + (l ? '라이브 고치기' : '라이브 추가') + '</h3><button class="btn ghost" value="close">닫기</button></div><div class="db">' +
     '<p class="warnbar" id="lvIss" hidden></p>' +
-    '<div class="ed-grid3"><label class="lab">날짜<input class="field" type="date" id="lvD" value="' + esc(d.date) + '"></label><label class="lab">시간<span style="display:flex;gap:6px"><input class="field" type="time" id="lvT" value="' + esc(d.tm || '') + '"><select class="field" id="lvDur" aria-label="진행 시간" style="width:8em">' + [60, 90, 120, 150, 180].map(function(v){ return '<option value="' + v + '"' + ((+d.dur || 60) === v ? ' selected' : '') + '>' + durText(v) + '</option>'; }).join('') + '</select></span></label><label class="lab">종류<select class="field" id="lvY">' + LIVE_TYPES.map(function(x){ return '<option' + (x === d.type ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label></div>' +
+    '<div class="ed-grid3"><label class="lab">날짜<input class="field" type="date" id="lvD" value="' + esc(d.date) + '"></label><label class="lab">시간<span style="display:flex;gap:6px"><input class="field" type="time" id="lvT" value="' + esc(d.tm || '') + '"><select class="field" id="lvDur" aria-label="진행 시간" style="width:8em">' + (function(){ var cur = +d.dur || 60, opts = [30, 60, 90, 120, 150, 180, 240, 300, 360, 420, 480]; if (opts.indexOf(cur) < 0) opts.push(cur); return opts.sort(function(a, b){ return a - b; }).map(function(v){ return '<option value="' + v + '"' + (cur === v ? ' selected' : '') + '>' + durText(v) + '</option>'; }).join(''); })() + '</select></span></label><label class="lab">종류<select class="field" id="lvY">' + LIVE_TYPES.map(function(x){ return '<option' + (x === d.type ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label></div>' +
     '<div class="lab"><span>코치 <small>함께 진행하면 여러 명 고르세요</small></span><div class="withs" id="lvC">' + coachChecks('lvc', d.coaches) + '</div><p class="hint" id="lvAv"></p></div>' +
     '<div class="ed-grid3"><label class="lab">상태<select class="field" id="lvS">' + LIVE_STATUS.map(function(x){ return '<option' + (x === d.status ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label><label class="lab">담당<select class="field" id="lvW">' + peopleOptions(d.who, true) + '</select></label><label class="lab"><span>홍보 시작일 <small>라이브 2주 전</small></span><input class="field" type="date" id="lvP" value="' + esc(promo) + '"></label></div>' +
     '<div class="lab">준비<div class="withs"><label><input type="checkbox" id="lvB"' + (d.banner ? ' checked' : '') + '>배너 준비</label><label><input type="checkbox" id="lvL"' + (d.link ? ' checked' : '') + '>링크 준비</label></div></div>' +
+    '<label class="lab" id="lvPplWrap" hidden>인원 <small>대면 피드백 받는 수강생 수. 이름과 시간은 메모에 적어요</small><input class="field" type="number" min="1" id="lvPpl" value="' + esc(d.people || '') + '" style="max-width:8em"></label>' +
     '<label class="lab">메모<textarea class="field" id="lvM" style="min-height:64px">' + esc(d.memo || '') + '</textarea></label>' +
     '<div class="box" id="lvRes" hidden><div class="bh">결과 기록<small>코치별 결과 모음과 월말 보고에 쓰여요</small></div><div class="ed-grid3"><label class="lab">참석자 수<input class="field" type="number" min="0" id="lvA" value="' + esc(d.attend == null ? '' : d.attend) + '"></label><label class="lab">결제 수<input class="field" type="number" min="0" id="lvPd" value="' + esc(d.paid == null ? '' : d.paid) + '"></label><label class="lab">한 줄 결과<input class="field" id="lvR" value="' + esc(d.result || '') + '"></label></div></div>' +
     '<div class="box" id="lvNote" hidden><div class="bh">코치님 안내 문구<small>확정되면 보내는 문구예요. 고쳐서 써도 돼요</small><span class="grow" style="flex:1"></span><button type="button" class="btn sm" id="lvCopy">복사</button></div><textarea class="field" id="lvNT" style="min-height:150px"></textarea></div>' +
@@ -1352,7 +1353,7 @@ function openLiveDialog(id, pre){
   function draft(){ return { id: id || 'tmp', data: { date: $('lvD').value, tm: $('lvT').value, dur: +$('lvDur').value, coaches: checkedWith('lvc'), type: $('lvY').value, status: $('lvS').value, promoStart: $('lvP').value } }; }
   function refresh(){
     var x = draft(), iss = liveIssues(x), box = $('lvIss');
-    $('lvRes').hidden = x.data.status !== '완료'; $('lvNote').hidden = x.data.status !== '확정' || isFF(x.data);
+    $('lvRes').hidden = x.data.status !== '완료' || isFF(x.data); $('lvPplWrap').hidden = !isFF(x.data); $('lvNote').hidden = x.data.status !== '확정' || isFF(x.data);
     if (x.data.status === '확정' && !noteEdited) $('lvNT').value = noticeText(Object.assign({}, x.data));
     box.hidden = !iss.length; box.innerHTML = iss.map(function(i){ return (i.bad ? '<b>겹침</b> ' : '') + esc(i.t); }).join('<br>');
     var each = x.data.coaches.map(function(c){ var h = availOf(c, x.data.date); return c + ': ' + (h === undefined ? '아직 답 없음' : h === null ? '이 날 가능하다고 하지 않음' : '가능 ' + hourRange(h)); }).join(' · ');
@@ -1369,6 +1370,7 @@ function openLiveDialog(id, pre){
   $('lvSave').onclick = async function(){
     var x = draft().data; if (!x.date) { toast('날짜를 넣어 주세요'); return; } if (!x.coaches.length) { toast('코치를 골라 주세요'); return; }
     var nd = Object.assign({}, l ? l.data : {}, x, { who: $('lvW').value, banner: $('lvB').checked, link: $('lvL').checked, memo: $('lvM').value.trim() });
+    if (isFF(x)) nd.people = $('lvPpl').value === '' ? null : +$('lvPpl').value;
     if (x.status === '완료') { nd.attend = $('lvA').value === '' ? null : +$('lvA').value; nd.paid = $('lvPd').value === '' ? null : +$('lvPd').value; nd.result = $('lvR').value.trim(); }
     var nid2 = id || 'live-' + nid();
     try {
