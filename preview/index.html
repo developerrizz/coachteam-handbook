@@ -1177,10 +1177,10 @@ function renderLive(){
   // coach picker
   var pairs = []; lpList('avail').forEach(function(x){ COACHES.forEach(function(b){ if (b !== x.data.coach && String(x.data.partner || '').indexOf(b) >= 0) { var k = [x.data.coach, b]; if (!pairs.some(function(p){ return p.join() === k.join() || p.join() === k.slice().reverse().join(); })) pairs.push(k); } }); });
   html += '<div class="lv-pick"><span class="lv-pl">가능한 날 보기</span>' + COACHES.map(function(c){ var none = !lpList('avail').some(function(x){ return x.data.coach === c; }); return '<button type="button" class="cpick" style="' + cStyle(c) + '" data-act="lvpick" data-v="' + esc(c) + '" aria-pressed="' + (pick.indexOf(c) >= 0) + '">' + cDot(c) + esc(c) + (none ? '<small>미응답</small>' : '') + '</button>'; }).join('') +
-    pairs.map(function(p){ return '<button type="button" class="cpick pairbtn" data-act="lvpair" data-v="' + esc(p.join(',')) + '" aria-pressed="' + (pick.length === 2 && p.every(function(c){ return pick.indexOf(c) >= 0; })) + '">' + cDot(p[0]) + cDot(p[1]) + esc(p.join('+')) + '<small>함께 희망</small></button>'; }).join('') +
+
     (pick.length ? '<button type="button" class="btn sm ghost" data-act="lvpick" data-v="">고르기 끝</button>' : '') + '</div>';
   var unknown = pick.filter(function(c){ return availOf(c, days[0]) === undefined; });
-  html += '<p class="hint lv-sub">' + (pick.length ? (pick.length > 1 ? pick.join('·') + ' 코치님이 함께 되는 날만 켜져요.' : pick[0] + ' 코치님이 되는 날만 켜져요.') + ' 켜진 칸을 누르면 바로 후보가 만들어져요.' + (unknown.length ? ' ' + unknown.join('·') + ' 코치님은 아직 가능 시간을 안 알려 주셨어요.' : '') : '위에서 코치를 고르면 그 코치님이 되는 날만 켜져요. 두 명을 고르면 둘 다 되는 날만 켜져요. 칸 위쪽 회색 글씨는 매주 고정인 정규 라이브예요.') + '</p>';
+  html += '<p class="hint lv-sub">' + (pick.length ? (pick.length > 1 ? pick.join('·') + ' 코치님이 모두 되는 날만 켜져요.' : pick[0] + ' 코치님이 되는 날만 켜져요.') + ' 켜진 칸을 누르면 바로 후보가 만들어져요.' + (unknown.length ? ' ' + unknown.join('·') + ' 코치님은 아직 가능 시간을 안 알려 주셨어요.' : '') : '위에서 코치를 고르면 그 코치님이 되는 날만 켜져요. 칸 위쪽 회색 글씨는 매주 고정인 정규 라이브예요.') + '</p>';
   html += '<div class="lv-legend"><span class="lg cand">후보</span><span class="lg conf">확정</span><span class="lg bad">겹침</span><span class="lg evnt"><i></i>위젯 일정</span></div>';
   html += '<div class="lv-wrap"><div class="lv-board' + (pick.length ? ' picking' : '') + '"><div class="lv-dow">' + ['월', '화', '수', '목', '금', '토', '일'].map(function(c){ return '<div>' + c + '</div>'; }).join('') + '</div>';
   for (var w = 0; w < 3; w++) {
