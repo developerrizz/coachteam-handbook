@@ -1139,6 +1139,8 @@ async function saveLive(rows){
   res.data.forEach(applyLive);
 }
 function onRemoteLive(p){ var row = p.new; if (!row || !row.id) return; applyLive(row); if (ui.tab === 'live' && !$('dlg').open) softRender(); }
+function endTm(tm, dur){ var m = mins(tm); if (m == null) return ''; m += (+dur || 60); return pad(Math.floor(m / 60) % 24) + ':' + pad(m % 60); }
+function durText(dur){ dur = +dur || 60; var h = Math.floor(dur / 60), mm = dur % 60; return (h ? h + '시간' : '') + (mm ? (h ? ' ' : '') + mm + '분' : ''); }
 function mins(tm){ var m = String(tm || '').match(/(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : null; }
 function liveStartDefault(){ var t = today(), d = pd(t), dow = d.getDay(); var mon = addDays(t, -((dow + 6) % 7)); return dow === 5 || dow === 6 || dow === 0 ? addDays(mon, 7) : mon; }
 function liveDays(){ if (!ui.liveStart) ui.liveStart = liveStartDefault(); var out = []; for (var i = 0; i < 21; i++) out.push(addDays(ui.liveStart, i)); return out; }
@@ -1159,7 +1161,7 @@ function availOf(coach, date){
 function commonHours(list){ var out = null; for (var i = 0; i < list.length; i++) { var h = list[i]; if (h === null || h === undefined) return null; if (!h.length) continue; out = out === null ? h.slice() : out.filter(function(x){ return h.indexOf(x) >= 0; }); } return out === null ? [] : out; }
 function pairsOn(date){ var out = [], seen = {}; lpList('avail').forEach(function(x){ var a = x.data.coach; COACHES.forEach(function(b){ if (b === a || String(x.data.partner || '').indexOf(b) < 0) return; var k = [a, b].sort().join(','); if (seen[k]) return; seen[k] = 1; var h = commonHours([availOf(a, date), availOf(b, date)]); if (h && (h.length || (availOf(a, date) && availOf(b, date)))) out.push({ coaches: [a, b], h: h }); }); }); return out; }
 function hourRange(h){ if (!h || !h.length) return '시간 무관'; var a = h[0], b = h[h.length - 1]; return a === b ? a + '시' : a + '~' + b + '시'; }
-function fixedOn(date){ var dow = pd(date).getDay(); return lpList('fixed').filter(function(f){ return f.data.dow === dow; }).map(function(f){ return { id: f.id, fixed: true, coaches: [f.data.coach], tm: f.data.tm, type: f.data.t || '정규 코칭 라이브' }; }); }
+function fixedOn(date){ var dow = pd(date).getDay(); return lpList('fixed').filter(function(f){ return f.data.dow === dow; }).map(function(f){ return { id: f.id, fixed: true, coaches: [f.data.coach], tm: f.data.tm, dur: +f.data.dur || 60, type: f.data.t || '정규 코칭 라이브' }; }); }
 function livesOn(date){ return lpList('live').filter(function(l){ return l.data.date === date; }).sort(function(a, b){ return (a.data.tm || '').localeCompare(b.data.tm || ''); }); }
 function blockOn(date){ return lpList('block').filter(function(b){ return b.data.date === date; })[0]; }
 /* problems for one live: time clash (1 hour slots, fixed lives included), coach answer says not available */
@@ -1167,9 +1169,10 @@ function liveIssues(l){
   var d = l.data, out = []; if (d.status === '취소') return out;
   var m = mins(d.tm);
   if (m != null) {
-    var others = livesOn(d.date).filter(function(x){ return x.id !== l.id && x.data.status !== '취소'; }).map(function(x){ return { name: (x.data.coaches || []).join('·') + ' ' + x.data.type, tm: x.data.tm }; })
-      .concat(fixedOn(d.date).map(function(f){ return { name: f.coaches[0] + ' 정규 라이브', tm: f.tm }; }));
-    others.forEach(function(o){ var om = mins(o.tm); if (om != null && Math.abs(om - m) < 60) out.push({ bad: true, t: o.tm + ' ' + o.name + '와 시간이 겹쳐요' }); });
+    var me = +d.dur || 60;
+    var others = livesOn(d.date).filter(function(x){ return x.id !== l.id && x.data.status !== '취소'; }).map(function(x){ return { name: (x.data.coaches || []).join('·') + ' ' + x.data.type, tm: x.data.tm, dur: +x.data.dur || 60 }; })
+      .concat(fixedOn(d.date).map(function(f){ return { name: f.coaches[0] + ' 정규 라이브', tm: f.tm, dur: f.dur }; }));
+    others.forEach(function(o){ var om = mins(o.tm); if (om != null && om < m + me && m < om + o.dur) out.push({ bad: true, t: o.tm + '~' + endTm(o.tm, o.dur) + ' ' + o.name + '와 시간이 겹쳐요' }); });
   }
   if (blockOn(d.date)) out.push({ bad: true, t: blockOn(d.date).data.reason + ' 날이라 코치 라이브를 잡지 않기로 한 날이에요' });
   (d.coaches || []).forEach(function(c){
@@ -1220,7 +1223,7 @@ function renderLive(){
       html += '<div class="lv-day' + (dt === t ? ' today' : '') + (blk ? ' blocked' : '') + (past ? ' past' : '') + (state ? ' ' + state : '') + '">';
       html += '<div class="lv-dn"><b>' + (dd.getMonth() + 1) + '/' + dd.getDate() + '</b>' + (dt === t ? '<em>오늘</em>' : '') + (evs.length ? '<span class="evdot" title="' + esc(evs.map(function(e){ return (e.data.tm ? e.data.tm + ' ' : '') + e.data.t; }).join('\n')) + '">' + evs.length + '</span>' : '') + (!blk ? '<button class="lv-plus" data-act="lvadd" data-date="' + dt + '" aria-label="' + md(dt) + ' 라이브 추가">+</button>' : '') + '</div>';
       if (blk) html += '<div class="blk"><b>' + esc(blk.data.reason) + '</b><span>이 날은 코치 라이브를 잡지 않아요</span></div>';
-      if (fx.length) html += '<div class="lv-fx" title="매주 고정 정규 코칭 라이브">정규 ' + fx.map(function(f){ return esc(f.tm) + ' ' + esc(f.coaches[0]); }).join(' · ') + '</div>';
+      if (fx.length) html += '<div class="lv-fx" title="매주 고정 정규 코칭 라이브">정규 ' + fx.map(function(f){ return esc(f.tm) + '~' + esc(endTm(f.tm, f.dur)) + ' ' + esc(f.coaches[0]); }).join(' · ') + '</div>';
       livesOn(dt).forEach(function(l){
         var d = l.data, iss = liveIssues(l).filter(function(i){ return !i.info; }), bad = iss.some(function(i){ return i.bad; }), cs = d.coaches || [];
         var cls = d.status === '확정' ? 'conf' : d.status === '완료' ? 'done' : d.status === '취소' ? 'cxl' : 'cand';
@@ -1233,7 +1236,7 @@ function renderLive(){
   }
   html += '</div></div>';
   html += '<div class="lv-cols"><section class="lv-panel"><div class="ph"><h3>코치 가능 시간</h3><span class="hint">구글폼 응답은 자동으로, 슬랙·카톡으로 받은 건 직접 넣어요</span><span class="grow"></span><button class="btn sm" data-act="avadd">+ 직접 넣기</button></div>' + availPanel() + '</section>';
-  html += '<section class="lv-panel"><div class="ph"><h3>매주 고정 정규 라이브</h3><span class="grow"></span><button class="btn sm ghost" data-act="fxedit">고치기</button></div><ul class="fxlist">' + lpList('fixed').sort(function(a, b){ return ((a.data.dow + 6) % 7) - ((b.data.dow + 6) % 7) || a.data.tm.localeCompare(b.data.tm); }).map(function(f){ return '<li><b>' + W[f.data.dow] + ' ' + esc(f.data.tm) + '</b> ' + cDot(f.data.coach) + esc(f.data.coach) + '</li>'; }).join('') + '</ul>' +
+  html += '<section class="lv-panel"><div class="ph"><h3>매주 고정 정규 라이브</h3><span class="grow"></span><button class="btn sm ghost" data-act="fxedit">고치기</button></div><ul class="fxlist">' + lpList('fixed').sort(function(a, b){ return ((a.data.dow + 6) % 7) - ((b.data.dow + 6) % 7) || a.data.tm.localeCompare(b.data.tm); }).map(function(f){ return '<li><b>' + W[f.data.dow] + ' ' + esc(f.data.tm) + '~' + esc(endTm(f.data.tm, f.data.dur)) + '</b> ' + cDot(f.data.coach) + esc(f.data.coach) + '</li>'; }).join('') + '</ul>' +
     '<div class="ph" style="margin-top:12px"><h3>코치 라이브 안 잡는 날</h3><span class="grow"></span><button class="btn sm ghost" data-act="blkadd">+ 추가</button></div><ul class="fxlist">' + (lpList('block').sort(function(a, b){ return a.data.date.localeCompare(b.data.date); }).map(function(b){ return '<li><b>' + md(b.data.date) + '</b> ' + esc(b.data.reason) + ' <button class="btn sm ghost" data-act="blkdel" data-id="' + esc(b.id) + '">빼기</button></li>'; }).join('') || '<li class="hint">없음</li>') + '</ul></section></div>' + resultsHtml();
   $('viewLive').innerHTML = html;
 }
@@ -1311,7 +1314,7 @@ function openLiveDialog(id, pre){
   var promo = d.promoStart || addDays(d.date, -14);
   dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>' + (l ? '라이브 고치기' : '라이브 추가') + '</h3><button class="btn ghost" value="close">닫기</button></div><div class="db">' +
     '<p class="warnbar" id="lvIss" hidden></p>' +
-    '<div class="ed-grid3"><label class="lab">날짜<input class="field" type="date" id="lvD" value="' + esc(d.date) + '"></label><label class="lab">시간<input class="field" type="time" id="lvT" value="' + esc(d.tm || '') + '"></label><label class="lab">종류<select class="field" id="lvY">' + LIVE_TYPES.map(function(x){ return '<option' + (x === d.type ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label></div>' +
+    '<div class="ed-grid3"><label class="lab">날짜<input class="field" type="date" id="lvD" value="' + esc(d.date) + '"></label><label class="lab">시간<span style="display:flex;gap:6px"><input class="field" type="time" id="lvT" value="' + esc(d.tm || '') + '"><select class="field" id="lvDur" aria-label="진행 시간" style="width:8em">' + [60, 90, 120, 150, 180].map(function(v){ return '<option value="' + v + '"' + ((+d.dur || 60) === v ? ' selected' : '') + '>' + durText(v) + '</option>'; }).join('') + '</select></span></label><label class="lab">종류<select class="field" id="lvY">' + LIVE_TYPES.map(function(x){ return '<option' + (x === d.type ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label></div>' +
     '<div class="lab"><span>코치 <small>함께 진행하면 여러 명 고르세요</small></span><div class="withs" id="lvC">' + coachChecks('lvc', d.coaches) + '</div><p class="hint" id="lvAv"></p></div>' +
     '<div class="ed-grid3"><label class="lab">상태<select class="field" id="lvS">' + LIVE_STATUS.map(function(x){ return '<option' + (x === d.status ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></label><label class="lab">담당<select class="field" id="lvW">' + peopleOptions(d.who, true) + '</select></label><label class="lab"><span>홍보 시작일 <small>라이브 2주 전</small></span><input class="field" type="date" id="lvP" value="' + esc(promo) + '"></label></div>' +
     '<div class="lab">준비<div class="withs"><label><input type="checkbox" id="lvB"' + (d.banner ? ' checked' : '') + '>배너 준비</label><label><input type="checkbox" id="lvL"' + (d.link ? ' checked' : '') + '>링크 준비</label></div></div>' +
@@ -1322,7 +1325,7 @@ function openLiveDialog(id, pre){
     '</div><div class="df">' + (l ? '<button type="button" class="btn danger" id="lvDel">삭제</button>' : '') + '<span class="grow"></span><button class="btn" value="close">취소</button><button type="button" class="btn primary" id="lvSave">저장</button></div></form>';
   dlg.showModal();
   var autoPromo = !d.promoStart, noteEdited = false;
-  function draft(){ return { id: id || 'tmp', data: { date: $('lvD').value, tm: $('lvT').value, coaches: checkedWith('lvc'), type: $('lvY').value, status: $('lvS').value, promoStart: $('lvP').value } }; }
+  function draft(){ return { id: id || 'tmp', data: { date: $('lvD').value, tm: $('lvT').value, dur: +$('lvDur').value, coaches: checkedWith('lvc'), type: $('lvY').value, status: $('lvS').value, promoStart: $('lvP').value } }; }
   function refresh(){
     var x = draft(), iss = liveIssues(x), box = $('lvIss');
     $('lvRes').hidden = x.data.status !== '완료'; $('lvNote').hidden = x.data.status !== '확정';
@@ -1334,7 +1337,7 @@ function openLiveDialog(id, pre){
   }
   $('lvD').addEventListener('change', function(){ if (autoPromo && this.value) $('lvP').value = addDays(this.value, -14); refresh(); });
   $('lvP').addEventListener('change', function(){ autoPromo = false; refresh(); });
-  ['lvT', 'lvY', 'lvS'].forEach(function(k){ $(k).addEventListener('change', refresh); });
+  ['lvT', 'lvY', 'lvS', 'lvDur'].forEach(function(k){ $(k).addEventListener('change', refresh); });
   $('lvC').addEventListener('change', refresh);
   $('lvNT').addEventListener('input', function(){ noteEdited = true; });
   $('lvCopy').onclick = function(){ copyText($('lvNT').value); };
@@ -1389,11 +1392,11 @@ function openAvailDialog(id, coach){
 }
 function openFixedDialog(){
   var dlg = $('dlg'), list = lpList('fixed');
-  dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>매주 고정 정규 라이브</h3><button class="btn ghost" value="close">닫기</button></div><div class="db"><p class="hint">한 줄에 하나, “코치 요일 시간” 순서로 적어 주세요. 예: 세란 월 20:00</p><textarea class="field" id="fxT" style="min-height:180px">' + esc(list.map(function(f){ return f.data.coach + ' ' + W[f.data.dow] + ' ' + f.data.tm; }).join('\n')) + '</textarea></div><div class="df"><span class="grow"></span><button class="btn" value="close">취소</button><button type="button" class="btn primary" id="fxSave">저장</button></div></form>';
+  dlg.innerHTML = '<form method="dialog"><div class="dh"><h3>매주 고정 정규 라이브</h3><button class="btn ghost" value="close">닫기</button></div><div class="db"><p class="hint">한 줄에 하나, “코치 요일 시작 시간 진행 시간” 순서로 적어 주세요. 예: 민우 화 19:00 3시간, 쇼츠타이거 수 20:00 1시간 30분. 진행 시간을 비우면 1시간이에요.</p><textarea class="field" id="fxT" style="min-height:180px">' + esc(list.map(function(f){ return f.data.coach + ' ' + W[f.data.dow] + ' ' + f.data.tm + ' ' + durText(f.data.dur); }).join('\n')) + '</textarea></div><div class="df"><span class="grow"></span><button class="btn" value="close">취소</button><button type="button" class="btn primary" id="fxSave">저장</button></div></form>';
   dlg.showModal();
   $('fxSave').onclick = async function(){
     var rows = [], seen = {};
-    $('fxT').value.split('\n').forEach(function(line){ var m = line.trim().match(/^(\S+)\s+([일월화수목금토])\S*\s+(\d{1,2}):?(\d{2})?/); if (!m) return; var id = 'fixed-' + m[1]; seen[id] = 1; rows.push({ id: id, kind: 'fixed', data: { coach: m[1], dow: W.indexOf(m[2]), tm: pad(+m[3]) + ':' + (m[4] || '00'), t: '정규 코칭 라이브' } }); });
+    $('fxT').value.split('\n').forEach(function(line){ var m = line.trim().match(/^(\S+)\s+([일월화수목금토])\S*\s+(\d{1,2}):?(\d{2})?/); if (!m) return; var id = 'fixed-' + m[1]; seen[id] = 1; var hh = line.match(/(\d+(?:\.\d+)?)\s*시간/), mi = line.match(/(\d+)\s*분/); var dur = (hh ? Math.round(+hh[1] * 60) : 0) + (mi ? +mi[1] : 0); var old = LP.fixed[id]; rows.push({ id: id, kind: 'fixed', data: Object.assign({}, old ? old.data : {}, { coach: m[1], dow: W.indexOf(m[2]), tm: pad(+m[3]) + ':' + (m[4] || '00'), dur: dur || 60, t: '정규 코칭 라이브' }) }); });
     list.forEach(function(f){ if (!seen[f.id]) rows.push({ id: f.id, kind: 'fixed', data: f.data, deleted: true }); });
     try { await saveLive(rows); dlg.close(); render(); toast('고정 라이브를 고쳤어요'); } catch (e) { toast('저장하지 못했어요'); }
   };
