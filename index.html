@@ -1270,7 +1270,7 @@ function copyText(t){ var done = function(){ toast('복사했어요. 붙여넣�
 function remindText(c){ var s = liveDays()[0], e = liveDays()[20]; return c + ' 코치님, 안녕하세요! 😊\n' + md(s) + '~' + md(e) + ' 세일즈 라이브 일정을 정하고 있어, 가능하신 날짜와 시간을 여쭙고자 연락드립니다.\n아래 폼에서 되는 칸만 체크해 주시면 됩니다. 일정이 유동적이시면 \'매주 가능한 요일·시간\'만 골라 주셔도 괜찮습니다.\n' + LIVE_FORM + '\n남겨 주시면 정규 라이브와 겹치지 않게 맞춰서 다시 안내드리겠습니다!'; }
 function noticeText(d){
   var cs = d.coaches || [], who = cs.join('·');
-  var lines = [who + ' 코치님, 안녕하세요! 😊', (d.type || '세일즈 라이브') + ' 일정이 확정되어 안내드립니다.', '', '· 일시: ' + md(d.date) + (d.tm ? ' ' + d.tm : '')];
+  var lines = [who + ' 코치님, 안녕하세요! 😊', (fitsAvail(d) ? '보내 주신 가능 시간에 맞춰 ' + (d.type || '세일즈 라이브') + ' 일정을 확정했습니다.' : (d.type || '세일즈 라이브') + ' 일정이 확정되어 안내드립니다.'), '', '· 일시: ' + md(d.date) + (d.tm ? ' ' + d.tm : '')];
   if (cs.length > 1) lines.push('· 진행: ' + who + ' 코치님 함께');
   lines.push('');
   if (d.promoStart && d.promoStart >= today()) lines.push('홍보는 ' + md(d.promoStart) + '부터 시작할 예정입니다.');
@@ -1279,14 +1279,15 @@ function noticeText(d){
 }
 function askText(d){
   var cs = d.coaches || [], who = cs.join('·');
-  var lines = [who + ' 코치님, 안녕하세요! 😊', (d.type || '세일즈 라이브') + ' 일정을 정하고 있어 여쭙습니다.', '', '· 일시: ' + md(d.date) + (d.tm ? ' ' + d.tm : '')];
+  var lines = [who + ' 코치님, 안녕하세요! 😊', ((d.coaches || []).some(function(c){ return availOf(c, d.date) === undefined; }) ? (d.type || '세일즈 라이브') + ' 일정을 정하고 있어 여쭙습니다.' : (d.type || '세일즈 라이브') + ' 일정을 정하고 있는데, 아래 시간은 보내 주신 가능 시간과 달라서 여쭙습니다.'), '', '· 일시: ' + md(d.date) + (d.tm ? ' ' + d.tm : '')];
   if (cs.length > 1) lines.push('· 진행: ' + who + ' 코치님 함께');
   lines.push('');
   lines.push('이 일정으로 진행 가능하신지 확인 부탁드립니다.');
   lines.push('가능하시면 확정해서 다시 안내드리고, 어려우시면 되는 날짜와 시간을 알려 주시면 맞춰 보겠습니다. 감사합니다!');
   return lines.join('\n');
 }
-function coachMsg(d){ if (!d || isFF(d)) return ''; return d.status === '확정' ? noticeText(d) : d.status === '후보' ? askText(d) : ''; }
+function fitsAvail(d){ var cs = d.coaches || []; if (!cs.length) return false; var hr = d.tm ? +String(d.tm).slice(0, 2) : null; return cs.every(function(c){ var h = availOf(c, d.date); if (!h) return false; return !h.length || hr === null || h.indexOf(hr) >= 0; }); }
+function coachMsg(d){ if (!d || isFF(d)) return ''; return d.status === '확정' ? noticeText(d) : d.status === '후보' && !fitsAvail(d) ? askText(d) : ''; }
 function copyQuiet(t, host){ try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).catch(function(){ fb(); }); return; } } catch (e) {} fb(); function fb(){ var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.left = '-9999px'; (host || document.body).appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); } }
 /* confirmed live → 업무 위젯 tasks: 홍보 시작 (2주 전), 배너·링크 준비 확인 (3일 전), 당일 링크 점검·리마인드 */
 async function syncLiveTasks(liveId, d){
@@ -1357,14 +1358,14 @@ function openLiveDialog(id, pre){
     '<label class="lab">메모<textarea class="field" id="lvM" style="min-height:64px">' + esc(d.memo || '') + '</textarea></label>' +
     '<div class="box" id="lvRes" hidden><div class="bh">결과 기록<small>코치별 결과 모음과 월말 보고에 쓰여요</small></div><div class="ed-grid3"><label class="lab">참석자 수<input class="field" type="number" min="0" id="lvA" value="' + esc(d.attend == null ? '' : d.attend) + '"></label><label class="lab">결제 수<input class="field" type="number" min="0" id="lvPd" value="' + esc(d.paid == null ? '' : d.paid) + '"></label><label class="lab">한 줄 결과<input class="field" id="lvR" value="' + esc(d.result || '') + '"></label></div></div>' +
     '<div class="box" id="lvNote" hidden><div class="bh"><span id="lvNH">코치님께 보낼 문구</span><small id="lvNS">저장하면 자동으로 복사돼요. 고쳐서 써도 돼요</small><span class="grow" style="flex:1"></span><button type="button" class="btn sm" id="lvCopy">복사</button></div><textarea class="field" id="lvNT" style="min-height:150px"></textarea></div>' +
-    '<p class="hint">후보나 확정으로 저장하면 위 문구가 바로 복사돼요. “확정”으로 저장하면 업무 위젯 일정에 들어가고, 담당자 위젯에 준비 업무 3개(홍보 시작, 배너·링크 확인, 당일 점검)가 날짜별로 생겨요. 취소나 후보로 되돌리면 같이 빠져요.</p>' +
+    '<p class="hint">확정으로 저장하면 코치님 안내 문구가 바로 복사돼요. 코치님이 보내 주신 가능 시간 밖에 잡은 후보만 여쭤보는 문구가 따로 나와요. “확정”으로 저장하면 업무 위젯 일정에 들어가고, 담당자 위젯에 준비 업무 3개(홍보 시작, 배너·링크 확인, 당일 점검)가 날짜별로 생겨요. 취소나 후보로 되돌리면 같이 빠져요.</p>' +
     '</div><div class="df">' + (l ? '<button type="button" class="btn danger" id="lvDel">삭제</button>' : '') + '<span class="grow"></span><button class="btn" value="close">취소</button><button type="button" class="btn primary" id="lvSave">저장</button></div></form>';
   dlg.showModal();
   var autoPromo = !d.promoStart, noteEdited = false, noteKind = null;
   function draft(){ return { id: id || 'tmp', data: { date: $('lvD').value, tm: $('lvT').value, dur: +$('lvDur').value, coaches: checkedWith('lvc'), type: $('lvY').value, status: $('lvS').value, promoStart: $('lvP').value } }; }
   function refresh(){
     var x = draft(), iss = liveIssues(x), box = $('lvIss');
-    $('lvRes').hidden = x.data.status !== '완료' || isFF(x.data); $('lvPplWrap').hidden = !isFF(x.data); var nk = isFF(x.data) ? '' : x.data.status === '확정' || x.data.status === '후보' ? x.data.status : '';
+    $('lvRes').hidden = x.data.status !== '완료' || isFF(x.data); $('lvPplWrap').hidden = !isFF(x.data); var nk = isFF(x.data) ? '' : x.data.status === '확정' ? '확정' : x.data.status === '후보' && !fitsAvail(x.data) ? '후보' : '';
     $('lvNote').hidden = !nk;
     if (nk !== noteKind) { noteEdited = false; noteKind = nk; }
     if (nk) { $('lvNH').textContent = nk === '확정' ? '코치님 확정 안내 문구' : '코치님께 가능 여부 여쭤보는 문구'; if (!noteEdited) { var mt = coachMsg(Object.assign({}, x.data)); $('lvNT').defaultValue = mt; $('lvNT').value = mt; } }
