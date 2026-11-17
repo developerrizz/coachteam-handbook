@@ -1367,7 +1367,7 @@ function openLiveDialog(id, pre){
     $('lvRes').hidden = x.data.status !== '완료' || isFF(x.data); $('lvPplWrap').hidden = !isFF(x.data); var nk = isFF(x.data) ? '' : x.data.status === '확정' || x.data.status === '후보' ? x.data.status : '';
     $('lvNote').hidden = !nk;
     if (nk !== noteKind) { noteEdited = false; noteKind = nk; }
-    if (nk) { $('lvNH').textContent = nk === '확정' ? '코치님 확정 안내 문구' : '코치님께 가능 여부 여쭤보는 문구'; if (!noteEdited) $('lvNT').value = coachMsg(Object.assign({}, x.data)); }
+    if (nk) { $('lvNH').textContent = nk === '확정' ? '코치님 확정 안내 문구' : '코치님께 가능 여부 여쭤보는 문구'; if (!noteEdited) { var mt = coachMsg(Object.assign({}, x.data)); $('lvNT').defaultValue = mt; $('lvNT').value = mt; } }
     box.hidden = !iss.length; box.innerHTML = iss.map(function(i){ return (i.bad ? '<b>겹침</b> ' : '') + esc(i.t); }).join('<br>');
     var each = x.data.coaches.map(function(c){ var h = availOf(c, x.data.date); return c + ': ' + (h === undefined ? '아직 답 없음' : h === null ? '이 날 가능하다고 하지 않음' : '가능 ' + hourRange(h)); }).join(' · ');
     var both = x.data.coaches.length > 1 ? commonHours(x.data.coaches.map(function(c){ var h = availOf(c, x.data.date); return h === undefined ? [] : h; })) : null;
